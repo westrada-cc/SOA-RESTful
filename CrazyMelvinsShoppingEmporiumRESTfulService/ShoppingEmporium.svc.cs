@@ -22,14 +22,7 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                 var customersToReturn = new List<Customer>();
                 foreach (var c in customerList)
                 {
-                    var customerToReturn = new Customer()
-                    {
-                        custID = c.custID,
-                        firstName = c.firstName,
-                        lastName = c.lastName,
-                        phoneNumber = c.phoneNumber
-                    };
-                    customersToReturn.Add(customerToReturn);
+                    customersToReturn.Add(new Customer(c));
                 }
 
                 return customersToReturn;
@@ -55,14 +48,7 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                 var fetchedCustomer = customerQuery.FirstOrDefault();
                 if (fetchedCustomer != null)
                 {
-                    var customerToReturn = new Customer()
-                    {
-                        custID = fetchedCustomer.custID,
-                        firstName = fetchedCustomer.firstName,
-                        lastName = fetchedCustomer.lastName,
-                        phoneNumber = fetchedCustomer.phoneNumber
-                    };
-                    return customerToReturn; 
+                    return new Customer(fetchedCustomer); 
                 }
                 else
                 {
@@ -75,14 +61,7 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
         {
             using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
             {
-                var customerToAdd = new Models.Customer()
-                {
-                    firstName = customer.firstName,
-                    lastName = customer.firstName,
-                    phoneNumber = customer.phoneNumber
-                
-                };
-                context.Customers.Add(customerToAdd);
+                context.Customers.Add(customer.GenerateDbModel());
                 context.SaveChanges();
             }
         }
@@ -124,27 +103,87 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public IList<Product> GetProductList()
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedProducts = context.Products;
+                var productList = new List<Product>();
+                foreach (var c in fetchedProducts)
+                {
+                    productList.Add(new Product(c));
+                }
+
+                return productList;
+            }
         }
 
         public Product GetProducts(string search)
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                IQueryable<Models.Product> productQuery = null;
+                // Try parsing search string as every property of customer.
+                int prodId = 0;
+                if (int.TryParse(search, out prodId))
+                {
+                    productQuery = context.Products.Where(o => o.prodID == prodId);
+                }
+                else
+                {
+                    productQuery = context.Products.Where(o => o.prodName == search);
+                }
+
+                var fetchedProduct = productQuery.FirstOrDefault();
+                if (fetchedProduct != null)
+                {
+                    return new Product(fetchedProduct);
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
 
         public void AddProduct(Product product)
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                context.Products.Add(product.GenerateDbModel());
+                context.SaveChanges();
+            }
         }
 
         public void UpdateProduct(Product product)
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedProductToUpdate = context.Products.Where(o => o.prodID == product.prodID).FirstOrDefault();
+                if (fetchedProductToUpdate != null)
+                {
+                    fetchedProductToUpdate.prodName = product.prodName;
+                    fetchedProductToUpdate.price = product.price;
+                    fetchedProductToUpdate.prodWeight = product.prodWeight;
+                    fetchedProductToUpdate.inStock = product.inStock;
+                    context.SaveChanges();
+                }
+            }
         }
 
         public void DeleteProduct(string id)
         {
-            throw new NotImplementedException();
+            int productWithIdToDelete = 0;
+            if (int.TryParse(id, out productWithIdToDelete))
+            {
+                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                {
+                    var fetchedProductToDelete = context.Products.Where(o => o.prodID == productWithIdToDelete).FirstOrDefault();
+                    if (fetchedProductToDelete != null)
+                    {
+                        context.Products.Remove(fetchedProductToDelete);
+                        context.SaveChanges();
+                    }
+                }
+            }
         } 
 
         #endregion
@@ -152,27 +191,86 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public IList<Order> GetOrderList()
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedOrders = context.Orders;
+                var orderList = new List<Order>();
+                foreach (var o in fetchedOrders)
+                {
+                    orderList.Add(new Order(o));
+                }
+
+                return orderList;
+            }
         }
 
         public Order GetOrder(string search)
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                IQueryable<Models.Order> orderQuery = null;
+                // Try parsing search string as every property of customer.
+                int prodId = 0;
+                if (int.TryParse(search, out prodId))
+                {
+                    orderQuery = context.Orders.Where(o => o.orderID == prodId || o.custID == prodId);
+                }
+                else
+                {
+                    // TODO: orderQuery = context.Orders.Where(o => o. == search);
+                }
+
+                var fetchedOrder = orderQuery.FirstOrDefault();
+                if (fetchedOrder != null)
+                {
+                    return new Order(fetchedOrder);
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
 
         public void AddOrder(Order order)
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                context.Orders.Add(order.GenerateDbModel());
+                context.SaveChanges();
+            }
         }
 
         public void UpdateOrder(Order order)
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedOrderToUpdate = context.Orders.Where(o => o.orderID == order.orderID).FirstOrDefault();
+                if (fetchedOrderToUpdate != null)
+                {
+                    fetchedOrderToUpdate.custID = order.custID;
+                    fetchedOrderToUpdate.orderDate = order.orderDate;
+                    fetchedOrderToUpdate.poNumber = order.poNumber;
+                    context.SaveChanges();
+                }
+            }
         }
 
         public void DeleteOrder(string id)
         {
-            throw new NotImplementedException();
+            int orderWithIdToDelete = 0;
+            if (int.TryParse(id, out orderWithIdToDelete))
+            {
+                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                {
+                    var fetchedOrderToDelete = context.Orders.Where(o => o.orderID == orderWithIdToDelete).FirstOrDefault();
+                    if (fetchedOrderToDelete != null)
+                    {
+                        context.Orders.Remove(fetchedOrderToDelete);
+                        context.SaveChanges();
+                    }
+                }
+            }
         } 
 
         #endregion
@@ -180,7 +278,17 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public IList<Cart> GetCartList()
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedCarts = context.Carts;
+                var cartList = new List<Cart>();
+                foreach (var c in fetchedCarts)
+                {
+                    cartList.Add(new Cart(c));
+                }
+
+                return cartList;
+            }
         }
 
         public Cart GetCart(string search)

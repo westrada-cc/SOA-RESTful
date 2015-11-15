@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="Cart.cs" />
     <Compile Include="Customer.cs" />
+    <Compile Include="IDbModelConvertable.cs" />
     <Compile Include="Models\Cart.cs">
       <DependentUpon>Entities.tt</DependentUpon>
     </Compile>
