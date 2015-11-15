@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="3a5f86ddc59f4c739f0e5bcb20977daa" Name="Diagram1" >
+        <EntityTypeShape EntityType="CrazyMelvinsShoppingEmporiumDbModel.Cart" Width="1.5" PointX="5.25" PointY="1" />
+        <EntityTypeShape EntityType="CrazyMelvinsShoppingEmporiumDbModel.Customer" Width="1.5" PointX="0.75" PointY="1" />
+        <EntityTypeShape EntityType="CrazyMelvinsShoppingEmporiumDbModel.Order" Width="1.5" PointX="3" PointY="0.875" />
+        <EntityTypeShape EntityType="CrazyMelvinsShoppingEmporiumDbModel.Product" Width="1.5" PointX="3" PointY="4.875" />
+        <AssociationConnector Association="CrazyMelvinsShoppingEmporiumDbModel.FK__Cart__orderID__4A8310C6" />
+        <AssociationConnector Association="CrazyMelvinsShoppingEmporiumDbModel.FK__Cart__prodID__4B7734FF" />
+        <AssociationConnector Association="CrazyMelvinsShoppingEmporiumDbModel.FK__Order__custID__47A6A41B" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
