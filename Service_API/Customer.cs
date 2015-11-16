@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Service_API
 {
-    class Customer
+    public class Customer
     {
-        int customerID { get; set; }
-        string firstName { get; set; }
-        string lastName { get; set; }
-        string phoneNumber { get; set; }
+        public int customerID { get; set; }
+        public string firstName { get; set; }
+        public string lastName { get; set; }
+        public string phoneNumber { get; set; }
 
         // default constructor
         public Customer()

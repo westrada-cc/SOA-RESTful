@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Net.Http;
+using System.Xml;
 
 namespace Service_API
 {
     public class Service
     {
+        private const string SERVICE_URL = "http://localhost:3745/ShoppingEmporium.svc/";
+        private HttpClient client;
+
         #region insert methods
         public void insertCustomer(int customerID, string firstName, string lastName, string phoneNumber)
         {
@@ -75,24 +80,170 @@ namespace Service_API
         #endregion
 
         #region search methods
-        public void searchCustomer(int customerID, string firstName, string lastName, string phoneNumber)
+        public Customer searchCustomer(int customerID, string firstName, string lastName, string phoneNumber)
         {
-            Customer customer = new Customer(customerID, firstName, lastName, phoneNumber);
+            XmlDocument xml = new XmlDocument();
+            client = new HttpClient();
+            Customer customer = new Customer();
+
+            var responseString = client.GetStringAsync(SERVICE_URL + "customers/" + firstName);
+
+            xml.LoadXml(responseString.ToString());
+
+            XmlNodeList nodes = xml.GetElementsByTagName("customer");
+
+            foreach (XmlNode node in nodes)
+            {
+                XmlNodeList children = node.ChildNodes;
+
+                foreach (XmlNode child in children)
+                {
+                    if (child.Name == "custID")
+                    {
+                        customer.customerID = Convert.ToInt32(child.InnerText);
+                    }
+                    else if (child.Name == "firstName")
+                    {
+                        customer.firstName = child.InnerText;
+                    }
+                    else if (child.Name == "lastName")
+                    {
+                        customer.lastName = child.InnerText;
+                    }
+                    else if (child.Name == "phoneNumber")
+                    {
+                        customer.phoneNumber = child.InnerText;
+                    }
+                }
+            }
+
+            return customer;
         }
 
-        public void searchProduct(int productID, string productName, float price, float productWeight, bool soldOut)
+        public Product searchProduct(int productID, string productName, float price, float productWeight, bool soldOut)
         {
-            Product product = new Product(productID, productName, price, productWeight, soldOut);
+            XmlDocument xml = new XmlDocument();
+            client = new HttpClient();
+            Product product = new Product();
+
+            var responseString = client.GetStringAsync(SERVICE_URL + "customers/" + productID);
+
+            xml.LoadXml(responseString.ToString());
+
+            XmlNodeList nodes = xml.GetElementsByTagName("product");
+
+            foreach (XmlNode node in nodes)
+            {
+                XmlNodeList children = node.ChildNodes;
+
+                foreach (XmlNode child in children)
+                {
+                    if (child.Name == "prodID")
+                    {
+                        product.productID = Convert.ToInt32(child.InnerText);
+                    }
+                    else if (child.Name == "prodName")
+                    {
+                        product.productName = child.InnerText;
+                    }
+                    else if (child.Name == "price")
+                    {
+                        float tempValue;
+                        float.TryParse(child.InnerText, out tempValue);
+                        product.price = tempValue;
+                    }
+                    else if (child.Name == "prodWeight")
+                    {
+                        float tempValue;
+                        float.TryParse(child.InnerText, out tempValue);
+                        product.productWeight = tempValue;
+                    }
+                    else if (child.Name == "inStock")
+                    {
+                        bool tempValue;
+                        bool.TryParse(child.InnerText, out tempValue);
+                        product.soldOut = tempValue;
+                    }
+                }
+            }
+
+            return product;
         }
 
-        public void searchOrder(int orderID, int customerID, string poNumber, string orderDate)
+        public Order searchOrder(int orderID, int customerID, string poNumber, string orderDate)
         {
-            Order order = new Order(orderID, customerID, poNumber, orderDate);
+            XmlDocument xml = new XmlDocument();
+            client = new HttpClient();
+            Order order = new Order();
+
+            var responseString = client.GetStringAsync(SERVICE_URL + "orders/" + orderID);
+
+            xml.LoadXml(responseString.ToString());
+
+            XmlNodeList nodes = xml.GetElementsByTagName("order");
+
+            foreach (XmlNode node in nodes)
+            {
+                XmlNodeList children = node.ChildNodes;
+
+                foreach (XmlNode child in children)
+                {
+                    if (child.Name == "orderID")
+                    {
+                        order.orderID = Convert.ToInt32(child.InnerText);
+                    }
+                    else if (child.Name == "custID")
+                    {
+                        order.customerID = Convert.ToInt32(child.InnerText);
+                    }
+                    else if (child.Name == "poNumber")
+                    {
+                        order.poNumber = child.InnerText;
+                    }
+                    else if (child.Name == "orderDate")
+                    {
+                        order.orderDate = child.InnerText;
+                    }
+                }
+            }
+
+            return order;
         }
 
-        public void searchCart(int orderID, int productID, int quantity)
+        public Cart searchCart(int orderID, int productID, int quantity)
         {
-            Cart cart = new Cart(orderID, productID, quantity);
+            XmlDocument xml = new XmlDocument();
+            client = new HttpClient();
+            Cart cart = new Cart();
+
+            var responseString = client.GetStringAsync(SERVICE_URL + "carts/" + orderID);
+
+            xml.LoadXml(responseString.ToString());
+
+            XmlNodeList nodes = xml.GetElementsByTagName("cart");
+
+            foreach (XmlNode node in nodes)
+            {
+                XmlNodeList children = node.ChildNodes;
+
+                foreach (XmlNode child in children)
+                {
+                    if (child.Name == "orderID")
+                    {
+                        cart.orderID = Convert.ToInt32(child.InnerText);
+                    }
+                    else if (child.Name == "prodID")
+                    {
+                        cart.productID = Convert.ToInt32(child.InnerText);
+                    }
+                    else if (child.Name == "quantity")
+                    {
+                        cart.quantity = Convert.ToInt32(child.InnerText);
+                    }
+                }
+            }
+
+            return cart;
         }
         #endregion
     }
