@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="CrazyMelvinsShoppingEmporiumRESTfulService.ShoppingEmporium" CodeBehind="ShoppingEmporium.svc.cs" %>
