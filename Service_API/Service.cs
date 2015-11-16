@@ -14,24 +14,72 @@ namespace Service_API
         #region insert methods
         public void insertCustomer(int customerID, string firstName, string lastName, string phoneNumber)
         {
-            Customer customer = new Customer(customerID, firstName, lastName, phoneNumber);
-            
+            client = new HttpClient();
+
+            var values = new Dictionary<string, string>
+            {
+                { "custID", customerID.ToString() },
+                { "firstName", firstName },
+                { "lastName", lastName },
+                { "phoneNumber", phoneNumber }
+            };
+
+            var content = new FormUrlEncodedContent(values);
+
+            var response = client.PostAsync(SERVICE_URL + "customers/", content);
+
+            //var responseString = await response.Content.ReadAsStringAsync();
         }
 
         public void insertProduct(int productID, string productName, float price, float productWeight, bool soldOut)
         {
-            Product product = new Product(productID, productName, price, productWeight, soldOut);
+            client = new HttpClient();
 
+            var values = new Dictionary<string, string>
+            {
+                { "inStock", soldOut.ToString() },
+                { "price", price.ToString() },
+                { "prodID", productID.ToString() },
+                { "prodName", productName },
+                { "prodWeight", productWeight.ToString() }
+            };
+
+            var content = new FormUrlEncodedContent(values);
+
+            var response = client.PostAsync(SERVICE_URL + "products/", content);
         }
 
         public void insertOrder(int orderID, int customerID, string poNumber, string orderDate)
         {
-            Order order = new Order(orderID, customerID, poNumber, orderDate);
+            client = new HttpClient();
+
+            var values = new Dictionary<string, string>
+            {
+                { "custID", customerID.ToString() },
+                { "orderDate", orderDate },
+                { "orderID", orderID.ToString() },
+                { "poNumber", poNumber }
+            };
+
+            var content = new FormUrlEncodedContent(values);
+
+            var response = client.PostAsync(SERVICE_URL + "orders/", content);
         }
 
         public void insertCart(int orderID, int productID, int quantity)
         {
-            Cart cart = new Cart(orderID, productID, quantity);
+            client = new HttpClient();
+
+            var values = new Dictionary<string, string>
+            {
+                { "orderID", orderID.ToString() },
+                { "prodID", productID.ToString() },
+                { "quantity", quantity.ToString() }
+            };
+
+            var content = new FormUrlEncodedContent(values;
+
+            var response = client.PostAsync(SERVICE_URL + "carts/", content);
         }
         #endregion
 
