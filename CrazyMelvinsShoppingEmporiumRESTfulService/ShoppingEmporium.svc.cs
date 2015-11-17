@@ -17,29 +17,233 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
     {
         public object[] Search(string search)
         {
-            if (search != null && search.Length > 0 && search.Contains("|"))
+            if (search != null && search.Length > 0 && search.Contains("="))
             {
-                var searchBits = search.Split(new string[] {"|"}, StringSplitOptions.RemoveEmptyEntries);
+                var arguments = new Dictionary<string, string>(); // this is where we are going to store parsed arguments.
+                var searchBits = search.Split(new string[] {"|"}, StringSplitOptions.None);
+                foreach (var bit in searchBits)
+                {
+                    var argumentAndValue = bit.Split(new string[] {"="}, StringSplitOptions.None);
+                    if (argumentAndValue.Count() == 2)
+                    {
+                        arguments.Add(argumentAndValue[0], argumentAndValue[1]);
+                    }
+                }
+
+                // Go through arguments and depending on what arguments are, query the database. //
+                if (arguments.Count == 1)
+                {
+                    if (arguments.ContainsKey("custID"))
+                    {
+                        return new object[] { this.GetCustomerById(int.Parse(arguments.Values.First())) };
+                    }
+                    else if (arguments.ContainsKey("firstName"))
+                    {
+                        return new object[] { this.GetCustomerByFirstName(arguments.Values.First()) };
+                    }
+                    else if (arguments.ContainsKey("lastName"))
+                    {
+                        return new object[] { this.GetCustomerByLastName(arguments.Values.First()) };
+                    }
+                    else if (arguments.ContainsKey("phoneNumber"))
+                    {
+                        return new object[] { this.GetCustomerByPhoneNumber(arguments.Values.First()) };
+                    }
+                    // Products
+                    else if (arguments.ContainsKey("prodID"))
+                    {
+                        return this.GetProductsBy(int.Parse(arguments.Values.First()), null,null,null,null).ToArray();
+                    }
+                    else if (arguments.ContainsKey("prodName"))
+                    {
+                        return this.GetProductsBy(null, arguments.Values.First(), null, null, null).ToArray();
+                    }
+                    else if (arguments.ContainsKey("price"))
+                    {
+                        return this.GetProductsBy(null, null, double.Parse(arguments.Values.First()), null, null).ToArray();
+                    }
+                    else if (arguments.ContainsKey("prodWeight"))
+                    {
+                        return this.GetProductsBy(null, null, null, double.Parse(arguments.Values.First()), null).ToArray();
+                    }
+                    else if (arguments.ContainsKey("inStock"))
+                    {
+                        return this.GetProductsBy(null, null, null, null, bool.Parse(arguments.Values.First())).ToArray();
+                    }
+                }
+
+
+                foreach (var argument in arguments)
+                {
+
+                }
+
                
             }
 
             return null;
         }
 
+        private Customer GetCustomerById(int id)
+        {
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedCustomer = context.Customers.Where(o => o.custID == id).FirstOrDefault();
+                if (fetchedCustomer != null)
+                {
+                    return new Customer(fetchedCustomer);
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Customer not found", "Customer with ID " + id + " not found."), System.Net.HttpStatusCode.NotFound);
+                }
+            }
+        }
+
+        private Customer GetCustomerByFirstName(string firstName)
+        {
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedCustomer = context.Customers.Where(o => o.firstName == firstName).FirstOrDefault();
+                if (fetchedCustomer != null)
+                {
+                    return new Customer(fetchedCustomer);
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Customer not found",""), System.Net.HttpStatusCode.NotFound);
+                }
+            }
+        }
+
+        private Customer GetCustomerByLastName(string lastName)
+        {
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedCustomer = context.Customers.Where(o => o.lastName == lastName).FirstOrDefault();
+                if (fetchedCustomer != null)
+                {
+                    return new Customer(fetchedCustomer);
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Customer not found", ""), System.Net.HttpStatusCode.NotFound);
+                }
+            }
+        }
+
+        private Customer GetCustomerByPhoneNumber(string phone)
+        {
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedCustomer = context.Customers.Where(o => o.phoneNumber == phone).FirstOrDefault();
+                if (fetchedCustomer != null)
+                {
+                    return new Customer(fetchedCustomer);
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Customer not found", ""), System.Net.HttpStatusCode.NotFound);
+                }
+            }
+        }
+
+        private IList<Product> GetProductsBy(int? prodId, string prodName, double? price, double? prodWeight, bool? inStock)
+        {
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                IQueryable<Models.Product> productQuery = null;
+                if (prodId.HasValue)
+                {
+                    productQuery = context.Products.Where(o => o.prodID == prodId.Value);
+                }
+                if (prodName != null)
+                {
+                    productQuery = context.Products.Where(o => o.prodName == prodName);
+                }
+                if (price.HasValue)
+                {
+                    productQuery = context.Products.Where(o => o.price == price.Value);
+                }
+                if (prodWeight.HasValue)
+                {
+                    productQuery = context.Products.Where(o => o.prodWeight == prodWeight.Value);
+                }
+                if (inStock.HasValue)
+                {
+                    productQuery = context.Products.Where(o => o.inStock == inStock.Value);
+                }
+
+                var fetchedList = productQuery.ToList();
+                if (fetchedList != null && fetchedList.Count > 0)
+                {
+                    var convertedList = new List<Product>();
+                    foreach(var item in fetchedList)
+                    {
+                        convertedList.Add(new Product(item));
+                    }
+                    return convertedList;
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Product not found", ""), System.Net.HttpStatusCode.NotFound);
+                }
+            }
+        }
+
+        private Order GetOrderBy(int orderId, int custId, string poNumber, DateTime orderDate)
+        {
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedCustomer = context.Orders.Where(o => o.orderID == orderId || o.custID == custId || o.poNumber == poNumber).FirstOrDefault();
+                if (fetchedCustomer != null)
+                {
+                    return new Order(fetchedCustomer);
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Order not found", ""), System.Net.HttpStatusCode.NotFound);
+                }
+            }
+        }
+
+        private Cart GetCartBy(int orderId, int prodId, int quantity)
+        {
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedCustomer = context.Carts.Where(o => o.orderID == orderId || o.prodID == prodId || o.quantity == quantity).FirstOrDefault();
+                if (fetchedCustomer != null)
+                {
+                    return new Cart(fetchedCustomer);
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Cart not found", ""), System.Net.HttpStatusCode.NotFound);
+                }
+            }
+        }
+
         #region | Customers |
 
         public IList<Customer> GetCustomerList()
         {
-            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            try
             {
-                var customerList = context.Customers;
-                var customersToReturn = new List<Customer>();
-                foreach (var c in customerList)
+                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
                 {
-                    customersToReturn.Add(new Customer(c));
-                }
+                    var customerList = context.Customers;
+                    var customersToReturn = new List<Customer>();
+                    foreach (var c in customerList)
+                    {
+                        customersToReturn.Add(new Customer(c));
+                    }
 
-                return customersToReturn;
+                    return customersToReturn;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new WebFaultException<Error>(new Error("Unexpected Exception", ex.Message), System.Net.HttpStatusCode.InternalServerError);
             }
         }
 

@@ -71,7 +71,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ShoppingEmporium.svc" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cart.cs" />
@@ -139,6 +141,7 @@
       <DependentUpon>Entities.edmx</DependentUpon>
       <LastGenOutput>Entities.cs</LastGenOutput>
     </Content>
+    <None Include="Properties\PublishProfiles\ShoppingEmporium.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
