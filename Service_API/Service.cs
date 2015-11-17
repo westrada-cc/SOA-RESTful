@@ -32,10 +32,10 @@ namespace Service_API
 
             int xmlLength = values.Length * sizeof(char);
 
-            var request = WebRequest.Create(SERVICE_URL + @"customers/") as HttpWebRequest;
+            var request = WebRequest.Create(SERVICE_URL + "Customers/") as HttpWebRequest;
             request.KeepAlive = false;
             request.Method = "POST";
-            request.ContentLength = xmlLength;
+            //request.ContentLength = xmlLength;
             request.ContentType = "text/xml;charset=\"utf-8\"";
             using (Stream stream = request.GetRequestStream())
             {
