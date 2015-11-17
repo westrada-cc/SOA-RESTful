@@ -30,14 +30,6 @@ namespace Service_API
 
             xml.LoadXml(values);
 
-            //var values = new Dictionary<string, string>
-            //{
-            //    { "custID", customerID.ToString() },
-            //    { "firstName", firstName },
-            //    { "lastName", lastName },
-            //    { "phoneNumber", phoneNumber }
-            //};
-
             int xmlLength = values.Length * sizeof(char);
 
             var request = WebRequest.Create(SERVICE_URL + @"customers/") as HttpWebRequest;
@@ -117,19 +109,34 @@ namespace Service_API
         #region update methods
         public void updateCustomer(int customerID, string firstName, string lastName, string phoneNumber)
         {
-            client = new HttpClient();
+            XmlDocument xml = new XmlDocument();
 
-            var values = new Dictionary<string, string>
+            string values = @"<Customer p1:Id=""NCNameString"" p1:Ref=""NCNameString"" xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
+                    <custID>2</custID>
+                    <firstName>anthony</firstName>
+                    <lastName>Salutari</lastName>
+                    <phoneNumber>123-123-1234</phoneNumber>
+                    </Customer>";
+
+            xml.LoadXml(values);
+
+            int xmlLength = values.Length * sizeof(char);
+
+            var request = WebRequest.Create(SERVICE_URL + @"customers/") as HttpWebRequest;
+            request.KeepAlive = false;
+            request.Method = "PUT";
+            request.ContentLength = xmlLength;
+            request.ContentType = "text/xml;charset=\"utf-8\"";
+            using (Stream stream = request.GetRequestStream())
             {
-                { "custID", customerID.ToString() },
-                { "firstName", firstName },
-                { "lastName", lastName },
-                { "phoneNumber", phoneNumber }
-            };
+                xml.Save(stream);
+            }
 
-            var content = new FormUrlEncodedContent(values);
+            var response = (HttpWebResponse)request.GetResponse();
 
-            var response = client.PutAsync(SERVICE_URL + "customers/", content);
+            StreamReader sr = new StreamReader(response.GetResponseStream());
+            string result = sr.ReadToEnd();
+            sr.Close();
         }
 
         public void updateProduct(int productID, string productName, float price, float productWeight, bool soldOut)
@@ -220,14 +227,31 @@ namespace Service_API
 
         #region search methods
 
-        public void globalSearch (Dictionary<string, string> query)
+        public XmlDocument globalSearch (Dictionary<string, string> query)
         {
+            XmlDocument xml = new XmlDocument();
             string formatedQuery = null;
+            string trimmedQuery = null;
 
             foreach (KeyValuePair<string, string> pair in query)
             {
                 formatedQuery += pair.Key + "=" + pair.Value + "|";
             }
+
+            if (formatedQuery.EndsWith("|"))
+            {
+                trimmedQuery = formatedQuery.TrimEnd('|');
+            }
+
+            var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "search/" + trimmedQuery);
+
+            var response = (HttpWebResponse)request.GetResponse();
+
+            var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+
+            xml.LoadXml(responseString.ToString());
+
+            return xml;
         }
 
         public Customer searchCustomer(int customerID, string firstName, string lastName, string phoneNumber)

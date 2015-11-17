@@ -86,8 +86,9 @@
             <div class="button-choices" id="CrazyMelvins_button_choices" role="article">   
                 <!--Create the submit button (used to submit the web form) and the cancel button (refreshes the page to a "blank slate" state)-->
                 <asp:Button ID="backBtn" runat="server" Text="Go Back" CausesValidation="false" OnClick="backBtn_Click" />
-                <asp:Button ID="executeBtn" runat="server" Text="Execute" OnClick="executeBtn_Click" OnClientClick="return validateForm()"/>
+                <asp:Button ID="executeBtn" runat="server" Text="Execute" OnClick="executeBtn_Click" />
                 <asp:Button ID="leaveBtn" runat="server" Text="Get me outta here!" CausesValidation="false"/>
+                <!--OnClientClick="return validateForm()"-->
             </div>
         </form>
     </div>
