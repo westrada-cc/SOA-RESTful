@@ -11,8 +11,18 @@ namespace SOA_A04_Website.pages
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            string results = (string)Session["ServiceResults"];
-            outputTxtBox.Text = results;
+            //string results = (string)Session["ServiceResults"];
+            //outputTxtBox.Text = results;
+        }
+
+        protected void backBtn_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("Default.aspx");
+        }
+
+        protected void printBtn_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("Default.aspx");
         }
     }
 }

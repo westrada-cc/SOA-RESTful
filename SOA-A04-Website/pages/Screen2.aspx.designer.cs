@@ -13,22 +13,22 @@ namespace SOA_A04_Website {
     public partial class Screen2 {
         
         /// <summary>
-        /// form1 control.
+        /// Screen2_Form control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+        protected global::System.Web.UI.HtmlControls.HtmlForm Screen2_Form;
         
         /// <summary>
-        /// poGenDiv control.
+        /// CrazyMelvins_po_generator control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl poGenDiv;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl CrazyMelvins_po_generator;
         
         /// <summary>
         /// custID control.

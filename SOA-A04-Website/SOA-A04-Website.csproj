@@ -49,7 +49,8 @@
     <Reference Include="System.Web.Mobile" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Default.aspx" />
+    <Content Include="CrazyMelvinsCSS.css" />
+    <Content Include="pages\Default.aspx" />
     <Content Include="pages\Screen2.aspx" />
     <Content Include="pages\Screen3.aspx" />
     <Content Include="Scripts\jquery-1.7.1.intellisense.js" />
@@ -58,11 +59,11 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Default.aspx.cs">
+    <Compile Include="pages\Default.aspx.cs">
       <SubType>ASPXCodeBehind</SubType>
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Default.aspx.designer.cs">
+    <Compile Include="pages\Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\Screen3.aspx.cs">

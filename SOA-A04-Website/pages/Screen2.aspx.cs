@@ -17,12 +17,12 @@ namespace SOA_A04_Website
             switch (exeType)
             {
                 case 0:
-                    poGenDiv.Visible = false;
+                    CrazyMelvins_po_generator.Visible = true;
                     break;
                 case 1:
                 case 2:
                 case 3:
-                    poGenDiv.Visible = true;
+                    CrazyMelvins_po_generator.Visible = false;
                     break;
                 default:
                     break;
@@ -33,7 +33,7 @@ namespace SOA_A04_Website
 
         protected void backBtn_Click(object sender, EventArgs e)
         {
-            Server.Transfer("Default.aspx");
+            Response.Redirect("Default.aspx");
         }
 
         protected void executeBtn_Click(object sender, EventArgs e)
@@ -82,7 +82,7 @@ namespace SOA_A04_Website
             }
 
             Session["ServiceResults"] = "some kind of resulting XML string or whatever from the service for testing";
-            Server.Transfer("pages/Screen3.aspx");
+            Response.Redirect("Screen3.aspx");
         }
     }
 }

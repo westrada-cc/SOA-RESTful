@@ -17,7 +17,7 @@ namespace SOA_A04_Website
         protected void goToNextScreen(int exeType)
         {
             Session["exeType"] = exeType;
-            Server.Transfer("pages/Screen2.aspx");
+            Response.Redirect("Screen2.aspx");
         }
 
 
