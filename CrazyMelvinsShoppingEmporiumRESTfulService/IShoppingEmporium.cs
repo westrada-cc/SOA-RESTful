@@ -22,6 +22,9 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
         #region | Global Search |
 
         [ServiceKnownType(typeof(Customer))]
+        [ServiceKnownType(typeof(Product))]
+        [ServiceKnownType(typeof(Cart))]
+        [ServiceKnownType(typeof(Order))]
         [OperationContract]
         [WebGet(UriTemplate = "Search/{search}"), Description("Return a set of results depending on search")]
         object[] Search(string search);

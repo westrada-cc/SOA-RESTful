@@ -31,6 +31,20 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                 }
 
                 // Go through arguments and depending on what arguments are, query the database. //
+                if (arguments.ContainsKey("prodID") ||
+                    arguments.ContainsKey("prodName") ||
+                    arguments.ContainsKey("price") ||
+                    arguments.ContainsKey("prodWeight") ||
+                    arguments.ContainsKey("inStock"))
+                {
+                    return this.GetProductsBy(
+                        (arguments.ContainsKey("prodID") ? int.Parse(arguments["prodID"]) as int? : null), 
+                        arguments.ContainsKey("prodName") ? arguments["prodName"] : null, 
+                        arguments.ContainsKey("price") ? double.Parse(arguments["price"]) as double? : null, 
+                        arguments.ContainsKey("prodWeight") ? double.Parse(arguments["prodWeight"]) as double? : null,
+                        arguments.ContainsKey("inStock") ? bool.Parse(arguments["inStock"]) as bool? : null).ToArray();
+                }
+
                 if (arguments.Count == 1)
                 {
                     if (arguments.ContainsKey("custID"))
@@ -48,27 +62,6 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     else if (arguments.ContainsKey("phoneNumber"))
                     {
                         return new object[] { this.GetCustomerByPhoneNumber(arguments.Values.First()) };
-                    }
-                    // Products
-                    else if (arguments.ContainsKey("prodID"))
-                    {
-                        return this.GetProductsBy(int.Parse(arguments.Values.First()), null,null,null,null).ToArray();
-                    }
-                    else if (arguments.ContainsKey("prodName"))
-                    {
-                        return this.GetProductsBy(null, arguments.Values.First(), null, null, null).ToArray();
-                    }
-                    else if (arguments.ContainsKey("price"))
-                    {
-                        return this.GetProductsBy(null, null, double.Parse(arguments.Values.First()), null, null).ToArray();
-                    }
-                    else if (arguments.ContainsKey("prodWeight"))
-                    {
-                        return this.GetProductsBy(null, null, null, double.Parse(arguments.Values.First()), null).ToArray();
-                    }
-                    else if (arguments.ContainsKey("inStock"))
-                    {
-                        return this.GetProductsBy(null, null, null, null, bool.Parse(arguments.Values.First())).ToArray();
                     }
                 }
 
@@ -153,7 +146,7 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
             using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
             {
                 IQueryable<Models.Product> productQuery = null;
-                if (prodId.HasValue)
+                if (prodId != null)
                 {
                     productQuery = context.Products.Where(o => o.prodID == prodId.Value);
                 }
@@ -161,15 +154,15 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                 {
                     productQuery = context.Products.Where(o => o.prodName == prodName);
                 }
-                if (price.HasValue)
+                if (price != null)
                 {
                     productQuery = context.Products.Where(o => o.price == price.Value);
                 }
-                if (prodWeight.HasValue)
+                if (prodWeight != null)
                 {
                     productQuery = context.Products.Where(o => o.prodWeight == prodWeight.Value);
                 }
-                if (inStock.HasValue)
+                if (inStock != null)
                 {
                     productQuery = context.Products.Where(o => o.inStock == inStock.Value);
                 }
