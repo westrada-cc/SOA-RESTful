@@ -8,8 +8,8 @@
     <title>Crazy Melvins Shopping Emporium</title>
 </head>
 <body id="css-CrazyMelvins">    
-    <div class="page-wrapper">
-        <form id="Screen2_Form" runat="server">
+    <div id="page_wrapper" class="page-wrapper">
+        <form id="Screen2_Form" name="Screen2Form" runat="server">
             <header role="banner">
                 <h1>Crazy Melvins Shopping Emporium</h1>
             </header>
@@ -80,16 +80,94 @@
             <br />
 
             <div class="error-message" id="CrazyMelvins_Error_Message" role="summary">
-                <p id="error_message"></p>
+                <p style="color:red" id="errorMessage"></p>
             </div>
 
             <div class="button-choices" id="CrazyMelvins_button_choices" role="article">   
                 <!--Create the submit button (used to submit the web form) and the cancel button (refreshes the page to a "blank slate" state)-->
                 <asp:Button ID="backBtn" runat="server" Text="Go Back" CausesValidation="false" OnClick="backBtn_Click" />
-                <asp:Button ID="executeBtn" runat="server" Text="Execute" OnClick="executeBtn_Click" />
+                <asp:Button ID="executeBtn" runat="server" Text="Execute" OnClick="executeBtn_Click" OnClientClick="return validateForm()"/>
                 <asp:Button ID="leaveBtn" runat="server" Text="Get me outta here!" CausesValidation="false"/>
             </div>
         </form>
     </div>
 </body>
 </html>
+
+<script type="text/javascript">
+
+    function validateForm()
+    {
+        var result = 1;
+
+        document.getElementById('errorMessage').innerHTML = '';
+
+        if (validatePhoneNumber() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Customer Phone Number is invalid<br/>';
+            result = 0;
+        }
+
+        if (validateDate() === false) {
+            document.getElementById('errorMessage').innerHTML += 'Order Date is invalid<br/>';
+            result = 0;
+        }
+
+        if (validateWeight() === false) {
+            document.getElementById('errorMessage').innerHTML += 'Product Weight must be a number<br/>';
+            result = 0;
+        }
+
+        if (validatePrice() === false) {
+            document.getElementById('errorMessage').innerHTML += 'Product price is invalid<br/>';
+            result = 0;
+        }
+
+        if (validateQuantity() === false) {
+            document.getElementById('errorMessage').innerHTML += 'Quantity must be a number<br/>';
+            result = 0;
+        }
+
+        return Boolean(result);
+    }
+
+    function validatePhoneNumber()
+    {
+        var phoneNumber = document.getElementById("phoneNumberID").value;
+        var phoneRegex = /^\(?([0-9]{3})\)?[-]?([0-9]{3})[-]?([0-9]{4})$/;;
+
+        return phoneRegex.test(phoneNumber);
+    }
+
+    function validateDate() 
+    {
+        var orderDate = document.getElementById("orderDateID").value;
+        var orderDateRegex = /^\d{1,2}\-\d{1,2}\-\d{4}$/;;
+
+        return orderDateRegex.test(orderDate);
+    }
+
+    function validateWeight()
+    {
+        var weight = document.getElementById("prodWeightID").value;
+        var numRegex = /^-?[\d.]+(?:e-?\d+)?$/;
+        
+        return numRegex.test(weight);
+    }
+
+    function validateQuantity()
+    {
+        var quantity = document.getElementById("quantityID").value;
+        var numRegex = /^-?[\d.]+(?:e-?\d+)?$/;
+
+        return numRegex.test(quantity);
+    }
+
+    function validatePrice()
+    {
+        var price = document.getElementById("priceID").value;
+        var priceRegex = /^\d+(?:\.\d{0,2})$/;
+
+        return priceRegex.test(price);
+    }
+</script>

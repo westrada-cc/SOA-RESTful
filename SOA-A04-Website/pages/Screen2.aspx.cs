@@ -76,28 +76,97 @@ namespace SOA_A04_Website
             {
                 //Search
                 case 0:
+                    Dictionary<string, string> query = new Dictionary<string, string>();
+
                     if (custID.Value != "")
                     {
-                        customer = service.searchCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                        query.Add("custID", customerID);
                     }
-                    else if (prodID.Value != "")
+                    if (firstNameID.Value != "")
                     {
-                        float priceConvert;
-                        float weightConvert;
+                        query.Add("firstName", firstName);
+                    }
+                    if (lastNameID.Value != "")
+                    {
+                        query.Add("lastName", lastName);
+                    }
+                    if (phoneNumberID.Value != "")
+                    {
+                        query.Add("phoneNumber", phoneNumber);
+                    }
+                    if (prodID.Value != "")
+                    {
+                        query.Add("productID", productID);
+                    }
+                    if (prodNameID.Value != "")
+                    {
+                        query.Add("productName", productName);
+                    }
+                    if (priceID.Value != "")
+                    {
+                        query.Add("price", price);
+                    }
+                    if (prodWeightID.Value != "")
+                    {
+                        query.Add("productWeight", productWeight);
+                    }
+                    if (soldOut)
+                    {
+                        query.Add("soldOut", soldOut.ToString());   
+                    }
+                    if (orderID.Value != "")
+                    {
+                        query.Add("orderID", _orderID);
+                    }
+                    if (custID2.Value != "")
+                    {
+                        query.Add("order_custID", customerID2);
+                    }
+                    if (poNumberID.Value != "")
+                    {
+                        query.Add("poNumber", poNumber);
+                    }
+                    if (orderDateID.Value != "")
+                    {
+                        query.Add("orderDate", orderDate);
+                    }
+                    if (orderID2.Value != "")
+                    {
+                        query.Add("cart_orderID", _orderID2);
+                    }
+                    if (prodID2.Value != "")
+                    {
+                        query.Add("cart_prodID", productID2);
+                    }
+                    if (quantityID.Value != "")
+                    {
+                        query.Add("quantity", quantity);
+                    }
 
-                        float.TryParse(price, out priceConvert);
-                        float.TryParse(productWeight, out weightConvert);
+                    service.globalSearch(query);
 
-                        product = service.searchProduct(Convert.ToInt32(productID), productName, priceConvert, weightConvert, soldOut);
-                    }
-                    else if (orderID.Value != "")
-                    {
-                        order = service.searchOrder(Convert.ToInt32(_orderID), Convert.ToInt32(customerID2), poNumber, orderDate);
-                    }
-                    else if (orderID2.Value != "")
-                    {
-                        cart = service.searchCart(Convert.ToInt32(_orderID2), Convert.ToInt32(productID2), Convert.ToInt32(quantity));
-                    }
+                    //if (custID.Value != "")
+                    //{
+                    //    customer = service.searchCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                    //}
+                    //else if (prodID.Value != "")
+                    //{
+                    //    float priceConvert;
+                    //    float weightConvert;
+
+                    //    float.TryParse(price, out priceConvert);
+                    //    float.TryParse(productWeight, out weightConvert);
+
+                    //    product = service.searchProduct(Convert.ToInt32(productID), productName, priceConvert, weightConvert, soldOut);
+                    //}
+                    //else if (orderID.Value != "")
+                    //{
+                    //    order = service.searchOrder(Convert.ToInt32(_orderID), Convert.ToInt32(customerID2), poNumber, orderDate);
+                    //}
+                    //else if (orderID2.Value != "")
+                    //{
+                    //    cart = service.searchCart(Convert.ToInt32(_orderID2), Convert.ToInt32(productID2), Convert.ToInt32(quantity));
+                    //}
                     break;
                 //Update
                 case 1:
@@ -109,7 +178,28 @@ namespace SOA_A04_Website
                     break;
                 //Delete
                 case 3:
-                    service.deleteCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                    if (custID.Value != "")
+                    {
+                        service.deleteCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                    }
+                    else if (prodID.Value != "")
+                    {
+                        float priceConvert;
+                        float weightConvert;
+
+                        float.TryParse(price, out priceConvert);
+                        float.TryParse(productWeight, out weightConvert);
+
+                        service.deleteProduct(Convert.ToInt32(productID), productName, priceConvert, weightConvert, soldOut);
+                    }
+                    else if (orderID.Value != "")
+                    {
+                        service.deleteOrder(Convert.ToInt32(_orderID), Convert.ToInt32(customerID2), poNumber, orderDate);
+                    }
+                    else if (orderID2.Value != "")
+                    {
+                        service.deleteCart(Convert.ToInt32(_orderID2), Convert.ToInt32(productID2), Convert.ToInt32(quantity));
+                    }
                     break;
                 default:
                     break;

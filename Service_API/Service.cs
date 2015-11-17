@@ -38,9 +38,12 @@ namespace Service_API
             //    { "phoneNumber", phoneNumber }
             //};
 
+            int xmlLength = values.Length * sizeof(char);
+
             var request = WebRequest.Create(SERVICE_URL + @"customers/") as HttpWebRequest;
             request.KeepAlive = false;
             request.Method = "POST";
+            request.ContentLength = xmlLength;
             request.ContentType = "text/xml;charset=\"utf-8\"";
             using (Stream stream = request.GetRequestStream())
             {
@@ -183,35 +186,50 @@ namespace Service_API
 
         #region delete methods
         public void deleteCustomer(int customerID, string firstName, string lastName, string phoneNumber)
-        {
-            client = new HttpClient();
+        {       
+            var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Customers/" + customerID.ToString());
+            request.Method = "DELETE";
 
-            var response = client.DeleteAsync(SERVICE_URL + "customers/" + customerID.ToString());          
+            var response = (HttpWebResponse)request.GetResponse();
         }
 
         public void deleteProduct(int productID, string productName, float price, float productWeight, bool soldOut)
         {
-            client = new HttpClient();
+            var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Products/" + productID.ToString());
+            request.Method = "DELETE";
 
-            var response = client.DeleteAsync(SERVICE_URL + "products/" + productID.ToString());
+            var response = (HttpWebResponse)request.GetResponse();
         }
 
         public void deleteOrder(int orderID, int customerID, string poNumber, string orderDate)
         {
-            client = new HttpClient();
+            var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Orders/" + orderID.ToString());
+            request.Method = "DELETE";
 
-            var response = client.DeleteAsync(SERVICE_URL + "orders/" + orderID.ToString());
+            var response = (HttpWebResponse)request.GetResponse();
         }
 
         public void deleteCart(int orderID, int productID, int quantity)
         {
-            client = new HttpClient();
+            var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Carts/" + orderID.ToString());
+            request.Method = "DELETE";
 
-            var response = client.DeleteAsync(SERVICE_URL + "carts/" + orderID);
+            var response = (HttpWebResponse)request.GetResponse();
         }
         #endregion
 
         #region search methods
+
+        public void globalSearch (Dictionary<string, string> query)
+        {
+            string formatedQuery = null;
+
+            foreach (KeyValuePair<string, string> pair in query)
+            {
+                formatedQuery += pair.Key + "=" + pair.Value + "|";
+            }
+        }
+
         public Customer searchCustomer(int customerID, string firstName, string lastName, string phoneNumber)
         {
             XmlDocument xml = new XmlDocument();
