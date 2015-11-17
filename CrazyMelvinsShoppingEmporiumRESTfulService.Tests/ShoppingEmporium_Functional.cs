@@ -10,7 +10,6 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService.Tests
         public void TestMethod1()
         {
             var service = new ShoppingEmporium();
-            service.GetCustomer(newCustomer);
         }
 
 

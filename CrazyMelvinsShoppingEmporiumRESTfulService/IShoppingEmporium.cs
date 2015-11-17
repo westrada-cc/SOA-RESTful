@@ -115,8 +115,8 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
         void UpdateCart(Cart cart);
 
         [OperationContract]
-        [WebInvoke(Method = "DELETE", UriTemplate = "Carts/{id}"), Description("Delete existing Cart.")]
-        void DeleteCart(string id);
+        [WebInvoke(Method = "DELETE", UriTemplate = "Carts/orderId={orderId}|prodId={prodId}|"), Description("Delete existing Cart.")]
+        void DeleteCart(string orderId, string prodId);
 
         #endregion
 

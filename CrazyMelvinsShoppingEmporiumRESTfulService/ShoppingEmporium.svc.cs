@@ -15,7 +15,6 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
     
     public class ShoppingEmporium : IShoppingEmporium
     {
-        
         public object[] Search(string search)
         {
             if (search != null && search.Length > 0 && search.Contains("|"))
@@ -89,6 +88,10 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     fetchedCustomerToUpdate.phoneNumber = customer.phoneNumber;
                     context.SaveChanges(); 
                 }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Customer with ID " + customer.custID + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                }
             }
         }
 
@@ -104,6 +107,10 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     {
                         context.Customers.Remove(fetchedCustomerToDelete);
                         context.SaveChanges();
+                    }
+                    else
+                    {
+                        throw new WebFaultException<Error>(new Error("Customer with ID " + id + " not found.", ""), System.Net.HttpStatusCode.NotFound);
                     }
                 }
             }
@@ -177,6 +184,10 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     fetchedProductToUpdate.inStock = product.inStock;
                     context.SaveChanges();
                 }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Product with ID " + product.prodID + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                }
             }
         }
 
@@ -192,6 +203,10 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     {
                         context.Products.Remove(fetchedProductToDelete);
                         context.SaveChanges();
+                    }
+                    else
+                    {
+                        throw new WebFaultException<Error>(new Error("Product with ID " + id + " not found.", ""), System.Net.HttpStatusCode.NotFound);
                     }
                 }
             }
@@ -264,6 +279,10 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     fetchedOrderToUpdate.poNumber = order.poNumber;
                     context.SaveChanges();
                 }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Order with ID " + order.orderID + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                }
             }
         }
 
@@ -279,6 +298,10 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     {
                         context.Orders.Remove(fetchedOrderToDelete);
                         context.SaveChanges();
+                    }
+                    else
+                    {
+                        throw new WebFaultException<Error>(new Error("Order with ID " + id + " not found.", ""), System.Net.HttpStatusCode.NotFound);
                     }
                 }
             }
@@ -309,17 +332,50 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public void AddCart(Cart cart)
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                context.Carts.Add(cart.GenerateDbModel());
+                context.SaveChanges();
+            }
         }
 
         public void UpdateCart(Cart cart)
         {
-            throw new NotImplementedException();
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                var fetchedCartToUpdate = context.Carts.Where(o => o.orderID == cart.orderID && o.prodID == cart.prodID).FirstOrDefault();
+                if (fetchedCartToUpdate != null)
+                {
+                    fetchedCartToUpdate.quantity = cart.quantity;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Cart with order ID " + cart.orderID + " and product ID " + cart.prodID + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                }
+            }
         }
 
-        public void DeleteCart(string id)
+        public void DeleteCart(string orderId, string prodId)
         {
-            throw new NotImplementedException();
+            int orderIdToDelete = 0;
+            int prodIdToDelete = 0;
+            if (int.TryParse(orderId, out orderIdToDelete) && int.TryParse(prodId, out prodIdToDelete))
+            {
+                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                {
+                    var fetchedCartToDelete = context.Carts.Where(o => o.orderID == orderIdToDelete && o.prodID == prodIdToDelete).FirstOrDefault();
+                    if (fetchedCartToDelete != null)
+                    {
+                        context.Carts.Remove(fetchedCartToDelete);
+                        context.SaveChanges();
+                    }
+                    else
+                    {
+                        throw new WebFaultException<Error>(new Error("Cart with order ID " + orderId + " and product ID " + prodId + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                    }
+                }
+            }
         } 
 
         #endregion
