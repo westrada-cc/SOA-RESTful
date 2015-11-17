@@ -30,104 +30,125 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     }
                 }
 
-                if (arguments.ContainsKey("custID") ||
-                    arguments.ContainsKey("firstName") ||
-                    arguments.ContainsKey("lastName") ||
-                    arguments.ContainsKey("phoneNumber"))
+                const string Customer_custID = "custID";
+                const string Customer_firstName = "firstName";
+                const string Customer_lastName = "lastName";
+                const string Customer_phoneNumber = "phoneNumber";
+
+                const string Product_prodID = "prodID";
+                const string Product_prodName = "prodName";
+                const string Product_price = "price";
+                const string Product_prodWeight = "prodWeight";
+                const string Product_inStock = "inStock";
+
+                const string Order_orderID = "orderID";
+                const string Order_custID = "custID";
+                const string Order_poNumber = "poNumber";
+                const string Order_orderDate = "orderDate";
+
+                const string Cart_orderID = "orderID";
+                const string Cart_prodID = "prodID";
+                const string Cart_quantity = "quantity";
+
+
+                // if any from order date and customer when return orders for that customer
+                if ((arguments.ContainsKey(Order_orderID) ||
+                    arguments.ContainsKey(Order_custID) ||
+                    arguments.ContainsKey(Order_poNumber) ||
+                    arguments.ContainsKey(Order_orderDate)) 
+                    &&
+                    (arguments.ContainsKey(Customer_custID) ||
+                    arguments.ContainsKey(Customer_firstName) ||
+                    arguments.ContainsKey(Customer_lastName) ||
+                    arguments.ContainsKey(Customer_phoneNumber)))
+                {
+                    using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                    {
+                        var mathcingCustomers = this.GetCustomerBy(
+                            arguments.ContainsKey(Customer_custID) ? int.Parse(arguments[Customer_custID]) as int? : null,
+                            arguments.ContainsKey(Customer_firstName) ? arguments[Customer_firstName] : null,
+                            arguments.ContainsKey(Customer_lastName) ? arguments[Customer_lastName] : null,
+                            arguments.ContainsKey(Customer_phoneNumber) ? arguments[Customer_phoneNumber] : null);
+
+                        if (mathcingCustomers.Count > 1)
+                        {
+                            throw new WebFaultException<Error>(new Error("Cannot get order for more then 1 customer.",""), System.Net.HttpStatusCode.BadRequest);
+                        }
+                        else
+                        {
+                            var ordersMadeByCustomer = this.GetOrderBy(
+                            arguments.ContainsKey(Order_orderID) ? int.Parse(arguments[Order_orderID]) as int? : null,
+                            mathcingCustomers.First().custID,
+                            arguments.ContainsKey(Order_poNumber) ? arguments[Order_poNumber] : null,
+                            arguments.ContainsKey(Order_orderDate) ? DateTime.Parse(arguments[Order_orderDate]) as DateTime? : null);
+
+                            return new object[]
+                            {
+                                mathcingCustomers.First(),
+                                ordersMadeByCustomer.First()
+                            };
+                        }
+                    }
+                }
+
+                // Order
+
+                if (arguments.ContainsKey(Order_orderID) ||
+                    arguments.ContainsKey(Order_custID) ||
+                    arguments.ContainsKey(Order_poNumber) ||
+                    arguments.ContainsKey(Order_orderDate))
+                {
+                    return this.GetOrderBy(
+                        arguments.ContainsKey(Order_orderID) ? int.Parse(arguments[Order_orderID]) as int? : null,
+                        arguments.ContainsKey(Order_custID) ? int.Parse(arguments[Order_custID]) as int? : null,
+                        arguments.ContainsKey(Order_poNumber) ? arguments[Order_poNumber] : null,
+                        arguments.ContainsKey(Order_orderDate) ? DateTime.Parse(arguments[Order_orderDate]) as DateTime? : null).ToArray();
+                }
+
+                // Cart
+
+                if (arguments.ContainsKey(Cart_orderID) ||
+                    arguments.ContainsKey(Cart_prodID) ||
+                    arguments.ContainsKey(Cart_quantity))
+                {
+                    return this.GetCartBy(
+                        arguments.ContainsKey(Cart_orderID) ? int.Parse(arguments[Cart_orderID]) as int? : null,
+                        arguments.ContainsKey(Cart_prodID) ? int.Parse(arguments[Cart_prodID]) as int? : null,
+                        arguments.ContainsKey(Cart_quantity) ? int.Parse(arguments[Cart_quantity]) as int? : null).ToArray();
+                }
+
+                // Customer
+
+                if (arguments.ContainsKey(Customer_custID) ||
+                    arguments.ContainsKey(Customer_firstName) ||
+                    arguments.ContainsKey(Customer_lastName) ||
+                    arguments.ContainsKey(Customer_phoneNumber))
                 {
                     return this.GetCustomerBy(
-                        arguments.ContainsKey("custID")  ? int.Parse(arguments["custID"]) as int? : null,
-                    arguments.ContainsKey("firstName")  ? arguments["firstName"] : null,
-                    arguments.ContainsKey("lastName") ? arguments["lastName"] : null,
-                    arguments.ContainsKey("phoneNumber")  ? arguments["phoneNumber"] : null).ToArray();
+                        arguments.ContainsKey(Customer_custID) ? int.Parse(arguments[Customer_custID]) as int? : null,
+                    arguments.ContainsKey(Customer_firstName) ? arguments[Customer_firstName] : null,
+                    arguments.ContainsKey(Customer_lastName) ? arguments[Customer_lastName] : null,
+                    arguments.ContainsKey(Customer_phoneNumber) ? arguments[Customer_phoneNumber] : null).ToArray();
                 }
 
+                // Product
 
-                // Go through arguments and depending on what arguments are, query the database. //
-                if (arguments.ContainsKey("prodID") ||
-                    arguments.ContainsKey("prodName") ||
-                    arguments.ContainsKey("price") ||
-                    arguments.ContainsKey("prodWeight") ||
-                    arguments.ContainsKey("inStock"))
+                if (arguments.ContainsKey(Product_prodID) ||
+                    arguments.ContainsKey(Product_prodName) ||
+                    arguments.ContainsKey(Product_price) ||
+                    arguments.ContainsKey(Product_prodWeight) ||
+                    arguments.ContainsKey(Product_inStock))
                 {
                     return this.GetProductsBy(
-                        (arguments.ContainsKey("prodID") ? int.Parse(arguments["prodID"]) as int? : null), 
-                        arguments.ContainsKey("prodName") ? arguments["prodName"] : null, 
-                        arguments.ContainsKey("price") ? double.Parse(arguments["price"]) as double? : null, 
-                        arguments.ContainsKey("prodWeight") ? double.Parse(arguments["prodWeight"]) as double? : null,
-                        arguments.ContainsKey("inStock") ? bool.Parse(arguments["inStock"]) as bool? : null).ToArray();
+                        (arguments.ContainsKey(Product_prodID) ? int.Parse(arguments[Product_prodID]) as int? : null),
+                        arguments.ContainsKey(Product_prodName) ? arguments[Product_prodName] : null,
+                        arguments.ContainsKey(Product_price) ? double.Parse(arguments[Product_price]) as double? : null,
+                        arguments.ContainsKey(Product_prodWeight) ? double.Parse(arguments[Product_prodWeight]) as double? : null,
+                        arguments.ContainsKey(Product_inStock) ? bool.Parse(arguments[Product_inStock]) as bool? : null).ToArray();
                 }
-
-
-
-               
             }
 
             return null;
-        }
-
-        private Customer GetCustomerById(int id)
-        {
-            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
-            {
-                var fetchedCustomer = context.Customers.Where(o => o.custID == id).FirstOrDefault();
-                if (fetchedCustomer != null)
-                {
-                    return new Customer(fetchedCustomer);
-                }
-                else
-                {
-                    throw new WebFaultException<Error>(new Error("Customer not found", "Customer with ID " + id + " not found."), System.Net.HttpStatusCode.NotFound);
-                }
-            }
-        }
-
-        private Customer GetCustomerByFirstName(string firstName)
-        {
-            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
-            {
-                var fetchedCustomer = context.Customers.Where(o => o.firstName == firstName).FirstOrDefault();
-                if (fetchedCustomer != null)
-                {
-                    return new Customer(fetchedCustomer);
-                }
-                else
-                {
-                    throw new WebFaultException<Error>(new Error("Customer not found",""), System.Net.HttpStatusCode.NotFound);
-                }
-            }
-        }
-
-        private Customer GetCustomerByLastName(string lastName)
-        {
-            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
-            {
-                var fetchedCustomer = context.Customers.Where(o => o.lastName == lastName).FirstOrDefault();
-                if (fetchedCustomer != null)
-                {
-                    return new Customer(fetchedCustomer);
-                }
-                else
-                {
-                    throw new WebFaultException<Error>(new Error("Customer not found", ""), System.Net.HttpStatusCode.NotFound);
-                }
-            }
-        }
-
-        private Customer GetCustomerByPhoneNumber(string phone)
-        {
-            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
-            {
-                var fetchedCustomer = context.Customers.Where(o => o.phoneNumber == phone).FirstOrDefault();
-                if (fetchedCustomer != null)
-                {
-                    return new Customer(fetchedCustomer);
-                }
-                else
-                {
-                    throw new WebFaultException<Error>(new Error("Customer not found", ""), System.Net.HttpStatusCode.NotFound);
-                }
-            }
         }
 
         public IList<Customer> GetCustomerBy(int? custID, string firstName, string lastName, string phoneNumber)
@@ -251,18 +272,37 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
             }
         }
 
-        private Cart GetCartBy(int orderId, int prodId, int quantity)
+        private IList<Cart> GetCartBy(int? orderId, int? prodId, int? quantity)
         {
             using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
             {
-                var fetchedCustomer = context.Carts.Where(o => o.orderID == orderId || o.prodID == prodId || o.quantity == quantity).FirstOrDefault();
-                if (fetchedCustomer != null)
+                IQueryable<Models.Cart> query = context.Carts;
+                if (orderId != null)
                 {
-                    return new Cart(fetchedCustomer);
+                    query = query.Where(o => o.orderID == orderId.Value);
+                }
+                if (prodId != null)
+                {
+                    query = query.Where(o => o.prodID == prodId.Value);
+                }
+                if (quantity != null)
+                {
+                    query = query.Where(o => o.quantity == quantity.Value);
+                }
+
+                var fetchedList = query.ToList();
+                if (fetchedList != null && fetchedList.Count > 0)
+                {
+                    var convertedList = new List<Cart>();
+                    foreach (var item in fetchedList)
+                    {
+                        convertedList.Add(new Cart(item));
+                    }
+                    return convertedList;
                 }
                 else
                 {
-                    throw new WebFaultException<Error>(new Error("Cart not found", ""), System.Net.HttpStatusCode.NotFound);
+                    throw new WebFaultException<Error>(new Error("Order not found", ""), System.Net.HttpStatusCode.NotFound);
                 }
             }
         }
