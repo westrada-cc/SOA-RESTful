@@ -16,26 +16,25 @@ namespace Service_API
         private WebClient webClient;
 
         #region insert methods
-        public void insertCustomer(int customerID, string firstName, string lastName, string phoneNumber)
+        public XmlDocument insertCustomer(int customerID, string firstName, string lastName, string phoneNumber)
         {
             //client = new HttpClient();
             XmlDocument xml = new XmlDocument();
+            XmlDocument resultXml = new XmlDocument();
+            xml.RemoveAll();
 
-            string values = @"<Customer p1:Id=""NCNameString"" p1:Ref=""NCNameString"" xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
-                    <custID>4</custID>
-                    <firstName>anthony</firstName>
-                    <lastName>Salutari</lastName>
-                    <phoneNumber>123-123-1234</phoneNumber>
-                    </Customer>";
+            string values = string.Format(@"<Customer xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
+                    <custID>{0}</custID>
+                    <firstName>{1}</firstName>
+                    <lastName>{2}</lastName>
+                    <phoneNumber>{3}</phoneNumber>
+                    </Customer>", customerID, firstName, lastName, phoneNumber);
 
             xml.LoadXml(values);
-
-            int xmlLength = values.Length * sizeof(char);
 
             var request = WebRequest.Create(SERVICE_URL + "Customers/") as HttpWebRequest;
             request.KeepAlive = false;
             request.Method = "POST";
-            //request.ContentLength = xmlLength;
             request.ContentType = "text/xml;charset=\"utf-8\"";
             using (Stream stream = request.GetRequestStream())
             {
@@ -48,6 +47,13 @@ namespace Service_API
             StreamReader sr = new StreamReader(response.GetResponseStream());
             string result = sr.ReadToEnd();
             sr.Close();
+
+            if (result != "")
+            {
+                resultXml.LoadXml(result);
+            }
+
+            return resultXml;
 
             //var content = new FormUrlEncodedContent(values);
 

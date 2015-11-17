@@ -177,7 +177,10 @@ namespace SOA_A04_Website
                     break;
                 //Insert
                 case 2:
-                    service.insertCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                    if (custID.Value != "")
+                    {
+                        result = service.insertCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                    }
                     break;
                 //Delete
                 case 3:

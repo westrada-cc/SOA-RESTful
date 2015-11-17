@@ -16,7 +16,14 @@ namespace SOA_A04_Website.pages
         {
             XmlDocument result = (XmlDocument)Session["SearchResults"];
 
-            outputTxtBox.Text = result.ToString();
+            if (result.OuterXml != "")
+            {
+                outputTxtBox.Text = result.OuterXml.ToString();
+            }
+            else
+            {
+                outputTxtBox.Text = "Successful";
+            }
 
             //System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
