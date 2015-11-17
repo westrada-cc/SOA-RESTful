@@ -4,13 +4,13 @@ using System.Text;
 
 namespace Service_API
 {
-    class Product
+    public class Product
     {
-        int productID { get; set; }
-        string productName { get; set; }
-        float price { get; set; }
-        float productWeight { get; set; }
-        bool soldOut { get; set; }
+        public int productID { get; set; }
+        public string productName { get; set; }
+        public float price { get; set; }
+        public float productWeight { get; set; }
+        public bool soldOut { get; set; }
 
         // default constructor
         public Product()
