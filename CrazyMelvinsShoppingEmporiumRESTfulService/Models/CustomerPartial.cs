@@ -26,7 +26,7 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService.Models
             public string lastName { get; set; }
 
             [Required(AllowEmptyStrings=false)]
-            [RegularExpression("^\\d{3}-\\d{4}-\\d{3}$")]
+            [RegularExpression("^\\d{3}-\\d{3}-\\d{4}$")]
             public string phoneNumber { get; set; }
         }
     }
