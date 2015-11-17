@@ -1,0 +1,42 @@
+﻿body{
+	background-position: center;
+	background-position: top;
+	background-repeat: no-repeat;
+	margin:0px;
+	padding:0px;
+	font-family: Georgia,"Times New Roman", Times, serif;
+	font-size: 11px;
+	text-align: center;
+}
+
+.page-wrapper{
+	width:1000px;
+	position: relative;
+	text-align: justify;
+	padding:0px;
+	margin: 0 auto;
+	height:1641px;
+}
+
+header{
+width:279px;
+height:170px;
+}
+
+.summary{
+    width:600px;
+	padding-top:35px;
+}
+
+.button-choices{
+    width:1000px;
+	padding-top:35px;
+}
+
+.po-genrator{    
+	text-align: center;
+}
+
+[role="form"]{
+    border:solid;    
+}

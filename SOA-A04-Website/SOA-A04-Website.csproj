@@ -41,9 +41,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Service_API">
-      <HintPath>..\Service_API\bin\Debug\Service_API.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -61,7 +58,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Default.aspx" />
+    <Content Include="CrazyMelvinsCSS.css" />
+    <Content Include="pages\Default.aspx" />
     <Content Include="pages\Screen2.aspx" />
     <Content Include="pages\Screen3.aspx" />
     <Content Include="Scripts\jquery-1.7.1.intellisense.js" />
@@ -70,11 +68,11 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Default.aspx.cs">
+    <Compile Include="pages\Default.aspx.cs">
       <SubType>ASPXCodeBehind</SubType>
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Default.aspx.designer.cs">
+    <Compile Include="pages\Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\Screen3.aspx.cs">
@@ -103,6 +101,12 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Service_API\Service_API.csproj">
+      <Project>{5a19f2b7-45b5-403a-a13d-d2796a90f840}</Project>
+      <Name>Service_API</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
