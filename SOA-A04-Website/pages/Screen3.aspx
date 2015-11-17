@@ -1,48 +1,23 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Screen3.aspx.cs" Inherits="SOA_A04_Website.pages.Screen3" %>
+﻿            //Customer results = (Customer)Session["SearchResults"];
 
-<!DOCTYPE html>
+            //System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-    <link rel="stylesheet" media="screen" href="/CrazyMelvinsCSS.css"/>
-    <title>Crazy Melvins Shopping Emporium</title>
-</head>
-<body id="css-CrazyMelvins"> 
-    <div class="page-wrapper">
-        <form id="Screen3_Form" runat="server">
-            <header role="banner">
-                <h1>Crazy Melvins Shopping Emporium</h1>
-            </header>
-            <div>
-                <asp:TextBox ID="outputTxtBox" runat="server" TextMode="MultiLine" 
-                            BorderStyle="Solid" Height="480px" Width="640px" ReadOnly="true">
-                </asp:TextBox>
-            </div>
+            //outputTxtBox.Text = "Customer Information" + Environment.NewLine +
+            //                    "ID: " + results.customerID + Environment.NewLine +
+            //                    "Name: " + results.firstName + " " + results.lastName + Environment.NewLine +
+            //                    "Phone: " + results.phoneNumber + Environment.NewLine +
+            //                    Environment.NewLine + "Purchase Date: " + Environment.NewLine +
+            //                    Environment.NewLine + "P.O. Number: " + Environment.NewLine;
 
-            <div class="button-choices" id="CrazyMelvins_button_choices" role="article">   
-                <!--Create the submit button (used to submit the web form) and the cancel button (refreshes the page to a "blank slate" state)-->
-                <asp:Button ID="backBtn" runat="server" Text="Go Back" CausesValidation="false" OnClick="backBtn_Click" />
-                <input type="button" id="printBtn" value="Print" onclick="printText('outputTxtBox');" />
-                <asp:Button ID="leaveBtn" runat="server" Text="Get me outta here!" CausesValidation="false"/>
-            </div>
-        </form>
-    </div>
-</body>
-</html>
+            //sb.Append("<table>");
+            //sb.AppendFormat("<tr><td>ID:</td><td>Product Name</td><td>Quantity</td><td>Unit Price</td><td>Unit Weight</td></tr>");
+            //sb.AppendFormat("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td></tr>", prodID, prodName, quatity, unitPrice, unitWeight);
+            //sb.AppendFormat("<tr><td></td><td></td><td>SubTotal:</td><td>{0}</td></tr>", subTotal);
+            //sb.AppendFormat("<tr><td></td><td></td><td>Tax (13%):</td><td>{0}</td></tr>", tax);
+            //sb.AppendFormat("<tr><td></td><td></td><td>Total:</td><td>{0}</td></tr>", total);
+            //sb.Append("<table>");
 
-<script type="text/javascript">
-<!--
-    function printText(elementId) {
-        var printContent = document.getElementById(elementId);
-        var windowUrl = 'about:blank';
-        var windowName = 'Print' + new Date().getTime();
-        var printWindow = window.open(windowUrl, windowName, 'left=50000,top=50000,width=0,height=0');
+            //outputTxtBox.Text += sb.ToString();
 
-        printWindow.document.write(printContent.value);
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-        printWindow.close();
-    }
-    // -->
-</script>
+            //outputTxtBox.Text += "Total Number of pieces ordered " + numberOfPieces + Environment.NewLine +
+            //                      "Total Weight of order " + totalWeight + " kg.";
