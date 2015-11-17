@@ -76,10 +76,12 @@
   <ItemGroup>
     <Compile Include="Cart.cs" />
     <Compile Include="Customer.cs" />
+    <Compile Include="Error.cs" />
     <Compile Include="IDbModelConvertable.cs" />
     <Compile Include="Models\Cart.cs">
       <DependentUpon>Entities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CartPartial.cs" />
     <Compile Include="Models\Customer.cs">
       <DependentUpon>Entities.tt</DependentUpon>
     </Compile>
@@ -102,9 +104,11 @@
     <Compile Include="Models\Order.cs">
       <DependentUpon>Entities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\OrderPartial.cs" />
     <Compile Include="Models\Product.cs">
       <DependentUpon>Entities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\ProductPartial.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Product.cs" />
     <Compile Include="ShoppingEmporium.svc.cs">

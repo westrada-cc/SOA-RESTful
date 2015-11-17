@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service_API", "Service_API\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SOA-A04-Website", "SOA-A04-Website\SOA-A04-Website.csproj", "{1F542AB5-8AF3-41AC-9887-D1E566915ED5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrazyMelvinsShoppingEmporiumRESTfulService.Tests", "CrazyMelvinsShoppingEmporiumRESTfulService.Tests\CrazyMelvinsShoppingEmporiumRESTfulService.Tests.csproj", "{49FA3C72-A782-429A-A5AA-ACCBBF36AF0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1F542AB5-8AF3-41AC-9887-D1E566915ED5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F542AB5-8AF3-41AC-9887-D1E566915ED5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F542AB5-8AF3-41AC-9887-D1E566915ED5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49FA3C72-A782-429A-A5AA-ACCBBF36AF0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49FA3C72-A782-429A-A5AA-ACCBBF36AF0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49FA3C72-A782-429A-A5AA-ACCBBF36AF0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49FA3C72-A782-429A-A5AA-ACCBBF36AF0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,15 +4,19 @@ using System.Collections.Generic;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Service_API;
 
 namespace SOA_A04_Website
 {
     public partial class Screen2 : System.Web.UI.Page
     {
         int execType;
+        private Service service;
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            service = new Service();
+
             int exeType = (int)Session["exeType"];
             switch (exeType)
             {
@@ -67,15 +71,19 @@ namespace SOA_A04_Website
             {
                 //Search
                 case 0:
+                    Customer results = service.searchCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
                     break;
                 //Update
                 case 1:
+                    service.updateCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
                     break;
                 //Insert
                 case 2:
+                    service.insertCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
                     break;
                 //Delete
                 case 3:
+                    service.deleteCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
                     break;
                 default:
                     break;

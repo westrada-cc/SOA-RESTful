@@ -4,11 +4,11 @@ using System.Text;
 
 namespace Service_API
 {
-    class Cart
+    public class Cart
     {
-        int orderID { get; set; }
-        int productID { get; set; }
-        int quantity { get; set; }
+        public int orderID { get; set; }
+        public int productID { get; set; }
+        public int quantity { get; set; }
 
         // default constructor
         public Cart()

@@ -10,17 +10,23 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService.Models
     public partial class Customer
     {
         public const int MaxFirstNameLength = 50;
+        public const int MaxLastNameLength = 50;
 
         private sealed class CustomerMetadata
         {
             [Required]
             public int custID { get; set; }
-            [Required]
+
+            [Required(AllowEmptyStrings = false)]
             [StringLength(MaxFirstNameLength)]
             public string firstName { get; set; }
-            [Required]
+
+            [Required(AllowEmptyStrings = false)]
+            [StringLength(MaxLastNameLength)]
             public string lastName { get; set; }
-            [Required]
+
+            [Required(AllowEmptyStrings=false)]
+            [RegularExpression("^\\d{3}-\\d{4}-\\d{3}$")]
             public string phoneNumber { get; set; }
         }
     }

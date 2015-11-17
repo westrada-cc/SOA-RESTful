@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Service_API
 {
-    class Order
+    public class Order
     {
-        int orderID { get; set; }
-        int customerID { get; set; }
-        string poNumber { get; set; }
-        string orderDate { get; set; }
+        public int orderID { get; set; }
+        public int customerID { get; set; }
+        public string poNumber { get; set; }
+        public string orderDate { get; set; }
 
         // default constructor
         public Order()
