@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -10,8 +11,22 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 {
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "Service1" in code, svc and config file together.
     // NOTE: In order to launch WCF Test Client for testing this service, please select Service1.svc or Service1.svc.cs at the Solution Explorer and start debugging.
+
+    
     public class ShoppingEmporium : IShoppingEmporium
     {
+        
+        public object[] Search(string search)
+        {
+            if (search != null && search.Length > 0 && search.Contains("|"))
+            {
+                var searchBits = search.Split(new string[] {"|"}, StringSplitOptions.RemoveEmptyEntries);
+               
+            }
+
+            return null;
+        }
+
         #region | Customers |
 
         public IList<Customer> GetCustomerList()
@@ -40,10 +55,6 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                 {
                     customerQuery = context.Customers.Where(o => o.custID == custId);
                 }
-                else
-                {
-                    customerQuery = context.Customers.Where(o => o.lastName == search || o.firstName == search || o.phoneNumber == search);
-                }
 
                 var fetchedCustomer = customerQuery.FirstOrDefault();
                 if (fetchedCustomer != null)
@@ -52,7 +63,7 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                 }
                 else
                 {
-                    return null;
+                    throw new WebFaultException<Error>(new Error("Customer not found", "Customer with ID " + search + " not found."), System.Net.HttpStatusCode.NotFound);
                 }
             }
         }

@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 using System.ComponentModel;
+using System.Collections;
 
 namespace CrazyMelvinsShoppingEmporiumRESTfulService
 {
@@ -18,6 +19,14 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
     [ServiceContract]
     public interface IShoppingEmporium
     {
+        #region | Global Search |
+
+        [ServiceKnownType(typeof(Customer))]
+        [OperationContract]
+        [WebGet(UriTemplate = "Search/{search}"), Description("Return a set of results depending on search")]
+        object[] Search(string search);
+
+        #endregion
         #region | Customers |
 
         [OperationContract]
