@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Http;
 using System.Xml;
+using System.Xml.Serialization;
+using System.IO;
+using System.Net;
 
 namespace Service_API
 {
@@ -10,6 +13,7 @@ namespace Service_API
     {
         private const string SERVICE_URL = "http://localhost:3745/ShoppingEmporium.svc/";
         private HttpClient client;
+        private WebClient webClient;
 
         #region insert methods
         public void insertCustomer(int customerID, string firstName, string lastName, string phoneNumber)
@@ -27,8 +31,6 @@ namespace Service_API
             var content = new FormUrlEncodedContent(values);
 
             var response = client.PostAsync(SERVICE_URL + "customers/", content);
-
-            //var responseString = await response.Content.ReadAsStringAsync();
         }
 
         public void insertProduct(int productID, string productName, float price, float productWeight, bool soldOut)
@@ -77,7 +79,7 @@ namespace Service_API
                 { "quantity", quantity.ToString() }
             };
 
-            var content = new FormUrlEncodedContent(values;
+            var content = new FormUrlEncodedContent(values);
 
             var response = client.PostAsync(SERVICE_URL + "carts/", content);
         }
@@ -158,7 +160,7 @@ namespace Service_API
         {
             client = new HttpClient();
 
-            var response = client.DeleteAsync(SERVICE_URL + "customers/" + customerID.ToString());
+            var response = client.DeleteAsync(SERVICE_URL + "customers/" + customerID.ToString());          
         }
 
         public void deleteProduct(int productID, string productName, float price, float productWeight, bool soldOut)
@@ -190,7 +192,7 @@ namespace Service_API
             client = new HttpClient();
             Customer customer = new Customer();
 
-            var responseString = client.GetStringAsync(SERVICE_URL + "customers/" + firstName);
+            var responseString = client.GetAsync(SERVICE_URL + "customers/" + firstName);
 
             xml.LoadXml(responseString.ToString());
 
@@ -350,5 +352,21 @@ namespace Service_API
             return cart;
         }
         #endregion
+
+        public string SerializeToXml(object input)
+        {
+            XmlSerializer ser = new XmlSerializer(input.GetType());
+            string result = string.Empty;
+
+            using (MemoryStream memStm = new MemoryStream())
+            {
+                ser.Serialize(memStm, input);
+
+                memStm.Position = 0;
+                result = new StreamReader(memStm).ReadToEnd();
+            }
+
+            return result;
+        }
     }
 }
