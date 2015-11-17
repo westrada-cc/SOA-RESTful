@@ -66,12 +66,14 @@ namespace SOA_A04_Website
             string productID2 = prodID2.Value;
             string quantity = quantityID.Value;
 
+            Customer results = new Customer();
+
             //Add Service call code here
             switch(execType)
             {
                 //Search
                 case 0:
-                    Customer results = service.searchCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                    results = service.searchCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
                     break;
                 //Update
                 case 1:
@@ -89,7 +91,7 @@ namespace SOA_A04_Website
                     break;
             }
 
-            Session["ServiceResults"] = "some kind of resulting XML string or whatever from the service for testing";
+            Session["SearchResults"] = results;
             Response.Redirect("Screen3.aspx");
         }
     }

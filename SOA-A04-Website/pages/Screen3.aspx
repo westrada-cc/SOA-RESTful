@@ -22,10 +22,27 @@
             <div class="button-choices" id="CrazyMelvins_button_choices" role="article">   
                 <!--Create the submit button (used to submit the web form) and the cancel button (refreshes the page to a "blank slate" state)-->
                 <asp:Button ID="backBtn" runat="server" Text="Go Back" CausesValidation="false" OnClick="backBtn_Click" />
-                <asp:Button ID="printBtn" runat="server" Text="Print" OnClick="printBtn_Click" />
+                <input type="button" id="printBtn" value="Print" onclick="printText('outputTxtBox');" />
                 <asp:Button ID="leaveBtn" runat="server" Text="Get me outta here!" CausesValidation="false"/>
             </div>
         </form>
     </div>
 </body>
 </html>
+
+<script type="text/javascript">
+<!--
+    function printText(elementId) {
+        var printContent = document.getElementById(elementId);
+        var windowUrl = 'about:blank';
+        var windowName = 'Print' + new Date().getTime();
+        var printWindow = window.open(windowUrl, windowName, 'left=50000,top=50000,width=0,height=0');
+
+        printWindow.document.write(printContent.value);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    }
+    // -->
+</script>

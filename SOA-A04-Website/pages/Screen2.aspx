@@ -79,6 +79,10 @@
             <br />
             <br />
 
+            <div class="error-message" id="CrazyMelvins_Error_Message" role="summary">
+                <p id="error_message"></p>
+            </div>
+
             <div class="button-choices" id="CrazyMelvins_button_choices" role="article">   
                 <!--Create the submit button (used to submit the web form) and the cancel button (refreshes the page to a "blank slate" state)-->
                 <asp:Button ID="backBtn" runat="server" Text="Go Back" CausesValidation="false" OnClick="backBtn_Click" />
