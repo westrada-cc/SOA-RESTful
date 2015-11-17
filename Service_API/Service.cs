@@ -11,26 +11,52 @@ namespace Service_API
 {
     public class Service
     {
-        private const string SERVICE_URL = "http://localhost:3745/ShoppingEmporium.svc/";
+        private const string SERVICE_URL = @"http://localhost:3745/ShoppingEmporium.svc/";
         private HttpClient client;
         private WebClient webClient;
 
         #region insert methods
         public void insertCustomer(int customerID, string firstName, string lastName, string phoneNumber)
         {
-            client = new HttpClient();
+            //client = new HttpClient();
+            XmlDocument xml = new XmlDocument();
 
-            var values = new Dictionary<string, string>
+            string values = @"<Customer p1:Id=""NCNameString"" p1:Ref=""NCNameString"" xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
+                    <custID>4</custID>
+                    <firstName>anthony</firstName>
+                    <lastName>Salutari</lastName>
+                    <phoneNumber>123-123-1234</phoneNumber>
+                    </Customer>";
+
+            xml.LoadXml(values);
+
+            //var values = new Dictionary<string, string>
+            //{
+            //    { "custID", customerID.ToString() },
+            //    { "firstName", firstName },
+            //    { "lastName", lastName },
+            //    { "phoneNumber", phoneNumber }
+            //};
+
+            var request = WebRequest.Create(SERVICE_URL + @"customers/") as HttpWebRequest;
+            request.KeepAlive = false;
+            request.Method = "POST";
+            request.ContentType = "text/xml;charset=\"utf-8\"";
+            using (Stream stream = request.GetRequestStream())
             {
-                { "custID", customerID.ToString() },
-                { "firstName", firstName },
-                { "lastName", lastName },
-                { "phoneNumber", phoneNumber }
-            };
+                xml.Save(stream);
+            }
 
-            var content = new FormUrlEncodedContent(values);
+            //WebResponse response = request.GetResponse();
+            var response = (HttpWebResponse)request.GetResponse();
 
-            var response = client.PostAsync(SERVICE_URL + "customers/", content);
+            StreamReader sr = new StreamReader(response.GetResponseStream());
+            string result = sr.ReadToEnd();
+            sr.Close();
+
+            //var content = new FormUrlEncodedContent(values);
+
+            //var response = client.PostAsync(SERVICE_URL + "customers/", content);
         }
 
         public void insertProduct(int productID, string productName, float price, float productWeight, bool soldOut)
@@ -189,14 +215,17 @@ namespace Service_API
         public Customer searchCustomer(int customerID, string firstName, string lastName, string phoneNumber)
         {
             XmlDocument xml = new XmlDocument();
-            client = new HttpClient();
             Customer customer = new Customer();
 
-            var responseString = client.GetAsync(SERVICE_URL + "customers/" + firstName);
+            var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Customers/" + customerID);
+
+            var response = (HttpWebResponse)request.GetResponse();
+
+            var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
             xml.LoadXml(responseString.ToString());
 
-            XmlNodeList nodes = xml.GetElementsByTagName("customer");
+            XmlNodeList nodes = xml.GetElementsByTagName("Customer");
 
             foreach (XmlNode node in nodes)
             {
@@ -229,14 +258,17 @@ namespace Service_API
         public Product searchProduct(int productID, string productName, float price, float productWeight, bool soldOut)
         {
             XmlDocument xml = new XmlDocument();
-            client = new HttpClient();
             Product product = new Product();
 
-            var responseString = client.GetStringAsync(SERVICE_URL + "customers/" + productID);
+            var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Products/" + productID);
+
+            var response = (HttpWebResponse)request.GetResponse();
+
+            var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
             xml.LoadXml(responseString.ToString());
 
-            XmlNodeList nodes = xml.GetElementsByTagName("product");
+            XmlNodeList nodes = xml.GetElementsByTagName("Product");
 
             foreach (XmlNode node in nodes)
             {
@@ -279,14 +311,17 @@ namespace Service_API
         public Order searchOrder(int orderID, int customerID, string poNumber, string orderDate)
         {
             XmlDocument xml = new XmlDocument();
-            client = new HttpClient();
             Order order = new Order();
 
-            var responseString = client.GetStringAsync(SERVICE_URL + "orders/" + orderID);
+            var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Orders/" + orderID);
+
+            var response = (HttpWebResponse)request.GetResponse();
+
+            var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
             xml.LoadXml(responseString.ToString());
 
-            XmlNodeList nodes = xml.GetElementsByTagName("order");
+            XmlNodeList nodes = xml.GetElementsByTagName("Order");
 
             foreach (XmlNode node in nodes)
             {
@@ -319,10 +354,13 @@ namespace Service_API
         public Cart searchCart(int orderID, int productID, int quantity)
         {
             XmlDocument xml = new XmlDocument();
-            client = new HttpClient();
             Cart cart = new Cart();
 
-            var responseString = client.GetStringAsync(SERVICE_URL + "carts/" + orderID);
+            var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Carts/" + orderID);
+
+            var response = (HttpWebResponse)request.GetResponse();
+
+            var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
             xml.LoadXml(responseString.ToString());
 
@@ -352,21 +390,5 @@ namespace Service_API
             return cart;
         }
         #endregion
-
-        public string SerializeToXml(object input)
-        {
-            XmlSerializer ser = new XmlSerializer(input.GetType());
-            string result = string.Empty;
-
-            using (MemoryStream memStm = new MemoryStream())
-            {
-                ser.Serialize(memStm, input);
-
-                memStm.Position = 0;
-                result = new StreamReader(memStm).ReadToEnd();
-            }
-
-            return result;
-        }
     }
 }

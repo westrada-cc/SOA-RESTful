@@ -66,14 +66,38 @@ namespace SOA_A04_Website
             string productID2 = prodID2.Value;
             string quantity = quantityID.Value;
 
-            Customer results = new Customer();
+            Customer customer = new Customer();
+            Product product = new Product();
+            Order order = new Order();
+            Cart cart = new Cart();
 
             //Add Service call code here
             switch(execType)
             {
                 //Search
                 case 0:
-                    results = service.searchCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                    if (custID.Value != "")
+                    {
+                        customer = service.searchCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                    }
+                    else if (prodID.Value != "")
+                    {
+                        float priceConvert;
+                        float weightConvert;
+
+                        float.TryParse(price, out priceConvert);
+                        float.TryParse(productWeight, out weightConvert);
+
+                        product = service.searchProduct(Convert.ToInt32(productID), productName, priceConvert, weightConvert, soldOut);
+                    }
+                    else if (orderID.Value != "")
+                    {
+                        order = service.searchOrder(Convert.ToInt32(_orderID), Convert.ToInt32(customerID2), poNumber, orderDate);
+                    }
+                    else if (orderID2.Value != "")
+                    {
+                        cart = service.searchCart(Convert.ToInt32(_orderID2), Convert.ToInt32(productID2), Convert.ToInt32(quantity));
+                    }
                     break;
                 //Update
                 case 1:
@@ -91,7 +115,7 @@ namespace SOA_A04_Website
                     break;
             }
 
-            Session["SearchResults"] = results;
+            //Session["SearchResults"] = results;
             Response.Redirect("Screen3.aspx");
         }
     }
