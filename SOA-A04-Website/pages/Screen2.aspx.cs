@@ -181,6 +181,24 @@ namespace SOA_A04_Website
                     {
                         result = service.insertCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
                     }
+                    else if (prodID.Value != "")
+                    {
+                        float priceConvert;
+                        float weightConvert;
+
+                        float.TryParse(price, out priceConvert);
+                        float.TryParse(productWeight, out weightConvert);
+
+                        result = service.insertProduct(Convert.ToInt32(productID), productName, priceConvert, weightConvert, soldOut);
+                    }
+                    else if (orderID.Value != "")
+                    {
+                        result = service.insertOrder(Convert.ToInt32(_orderID), Convert.ToInt32(customerID2), poNumber, orderDate);
+                    }
+                    else if (orderID2.Value != "")
+                    {
+                        result = service.insertCart(Convert.ToInt32(_orderID2), Convert.ToInt32(productID2), Convert.ToInt32(quantity));
+                    }
                     break;
                 //Delete
                 case 3:
