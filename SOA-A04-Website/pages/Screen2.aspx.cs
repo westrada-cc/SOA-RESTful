@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Service_API;
+using System.Xml;
 
 namespace SOA_A04_Website
 {
@@ -12,6 +13,7 @@ namespace SOA_A04_Website
     {
         int execType;
         private Service service;
+        public XmlDocument result;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -77,6 +79,7 @@ namespace SOA_A04_Website
                 //Search
                 case 0:
                     Dictionary<string, string> query = new Dictionary<string, string>();
+                    result = new XmlDocument();
 
                     if (custID.Value != "")
                     {
@@ -96,11 +99,11 @@ namespace SOA_A04_Website
                     }
                     if (prodID.Value != "")
                     {
-                        query.Add("productID", productID);
+                        query.Add("prodID", productID);
                     }
                     if (prodNameID.Value != "")
                     {
-                        query.Add("productName", productName);
+                        query.Add("prodName", productName);
                     }
                     if (priceID.Value != "")
                     {
@@ -108,7 +111,7 @@ namespace SOA_A04_Website
                     }
                     if (prodWeightID.Value != "")
                     {
-                        query.Add("productWeight", productWeight);
+                        query.Add("prodWeight", productWeight);
                     }
                     if (soldOut)
                     {
@@ -143,7 +146,7 @@ namespace SOA_A04_Website
                         query.Add("quantity", quantity);
                     }
 
-                    service.globalSearch(query);
+                    result = service.globalSearch(query);
 
                     //if (custID.Value != "")
                     //{
@@ -205,7 +208,7 @@ namespace SOA_A04_Website
                     break;
             }
 
-            //Session["SearchResults"] = results;
+            Session["SearchResults"] = result;
             Response.Redirect("Screen3.aspx");
         }
     }
