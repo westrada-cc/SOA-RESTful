@@ -30,6 +30,19 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     }
                 }
 
+                if (arguments.ContainsKey("custID") ||
+                    arguments.ContainsKey("firstName") ||
+                    arguments.ContainsKey("lastName") ||
+                    arguments.ContainsKey("phoneNumber"))
+                {
+                    return this.GetCustomerBy(
+                        arguments.ContainsKey("custID")  ? int.Parse(arguments["custID"]) as int? : null,
+                    arguments.ContainsKey("firstName")  ? arguments["firstName"] : null,
+                    arguments.ContainsKey("lastName") ? arguments["lastName"] : null,
+                    arguments.ContainsKey("phoneNumber")  ? arguments["phoneNumber"] : null).ToArray();
+                }
+
+
                 // Go through arguments and depending on what arguments are, query the database. //
                 if (arguments.ContainsKey("prodID") ||
                     arguments.ContainsKey("prodName") ||
@@ -45,31 +58,7 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                         arguments.ContainsKey("inStock") ? bool.Parse(arguments["inStock"]) as bool? : null).ToArray();
                 }
 
-                if (arguments.Count == 1)
-                {
-                    if (arguments.ContainsKey("custID"))
-                    {
-                        return new object[] { this.GetCustomerById(int.Parse(arguments.Values.First())) };
-                    }
-                    else if (arguments.ContainsKey("firstName"))
-                    {
-                        return new object[] { this.GetCustomerByFirstName(arguments.Values.First()) };
-                    }
-                    else if (arguments.ContainsKey("lastName"))
-                    {
-                        return new object[] { this.GetCustomerByLastName(arguments.Values.First()) };
-                    }
-                    else if (arguments.ContainsKey("phoneNumber"))
-                    {
-                        return new object[] { this.GetCustomerByPhoneNumber(arguments.Values.First()) };
-                    }
-                }
 
-
-                foreach (var argument in arguments)
-                {
-
-                }
 
                
             }
@@ -141,30 +130,69 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
             }
         }
 
+        public IList<Customer> GetCustomerBy(int? custID, string firstName, string lastName, string phoneNumber)
+        {
+            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            {
+                IQueryable<Models.Customer> query = context.Customers;
+                if (custID != null)
+                {
+                    query = query.Where(o => o.custID == custID.Value);
+                }
+                if (firstName != null)
+                {
+                    query = query.Where(o => o.firstName == firstName);
+                }
+                if (lastName != null)
+                {
+                    query = query.Where(o => o.lastName == lastName);
+                }
+                if (phoneNumber != null)
+                {
+                    query = query.Where(o => o.phoneNumber == phoneNumber);
+                }
+
+                var fetchedList = query.ToList();
+                if (fetchedList != null && fetchedList.Count > 0)
+                {
+                    var convertedList = new List<Customer>();
+                    foreach (var item in fetchedList)
+                    {
+                        convertedList.Add(new Customer(item));
+                    }
+                    return convertedList;
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Customer not found", ""), System.Net.HttpStatusCode.NotFound);
+                }
+            }
+        }
+
         private IList<Product> GetProductsBy(int? prodId, string prodName, double? price, double? prodWeight, bool? inStock)
         {
             using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
             {
-                IQueryable<Models.Product> productQuery = null;
+                IQueryable<Models.Product> productQuery = context.Products;
                 if (prodId != null)
                 {
-                    productQuery = context.Products.Where(o => o.prodID == prodId.Value);
+                    productQuery = productQuery.Where(o => o.prodID == prodId.Value);
                 }
                 if (prodName != null)
                 {
-                    productQuery = context.Products.Where(o => o.prodName == prodName);
+                    productQuery = productQuery.Where(o => o.prodName == prodName);
                 }
                 if (price != null)
                 {
-                    productQuery = context.Products.Where(o => o.price == price.Value);
+                    productQuery = productQuery.Where(o => o.price == price.Value);
                 }
                 if (prodWeight != null)
                 {
-                    productQuery = context.Products.Where(o => o.prodWeight == prodWeight.Value);
+                    productQuery = productQuery.Where(o => o.prodWeight == prodWeight.Value);
                 }
                 if (inStock != null)
                 {
-                    productQuery = context.Products.Where(o => o.inStock == inStock.Value);
+                    productQuery = productQuery.Where(o => o.inStock == inStock.Value);
                 }
 
                 var fetchedList = productQuery.ToList();
@@ -184,18 +212,41 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
             }
         }
 
-        private Order GetOrderBy(int orderId, int custId, string poNumber, DateTime orderDate)
+        private IList<Order> GetOrderBy(int? orderId, int? custId, string poNumber, DateTime? orderDate)
         {
             using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
             {
-                var fetchedCustomer = context.Orders.Where(o => o.orderID == orderId || o.custID == custId || o.poNumber == poNumber).FirstOrDefault();
-                if (fetchedCustomer != null)
+                IQueryable<Models.Order> query = context.Orders;
+                if (orderId != null)
                 {
-                    return new Order(fetchedCustomer);
+                    query = query.Where(o => o.orderID == orderId.Value);
+                }
+                if (custId != null)
+                {
+                    query = query.Where(o => o.custID == custId.Value);
+                }
+                if (poNumber != null)
+                {
+                    query = query.Where(o => o.poNumber == poNumber);
+                }
+                if (orderDate != null)
+                {
+                    query = query.Where(o => o.orderDate == orderDate.Value);
+                }
+
+                var fetchedList = query.ToList();
+                if (fetchedList != null && fetchedList.Count > 0)
+                {
+                    var convertedList = new List<Order>();
+                    foreach (var item in fetchedList)
+                    {
+                        convertedList.Add(new Order(item));
+                    }
+                    return convertedList;
                 }
                 else
                 {
-                    throw new WebFaultException<Error>(new Error("Order not found", ""), System.Net.HttpStatusCode.NotFound);
+                    throw new WebFaultException<Error>(new Error("Product not found", ""), System.Net.HttpStatusCode.NotFound);
                 }
             }
         }
