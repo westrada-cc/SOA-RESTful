@@ -679,5 +679,40 @@ namespace Service_API
             return cart;
         }
         #endregion
+
+        public XmlDocument searchPoOrder(Dictionary<string, string> query)
+        {
+            XmlDocument xml = new XmlDocument();
+            string formatedQuery = null;
+            string trimmedQuery = null;
+            string responseString = null;
+
+            foreach (KeyValuePair<string, string> pair in query)
+            {
+                formatedQuery += pair.Key + "=" + pair.Value + "|";
+            }
+
+            if (formatedQuery.EndsWith("|"))
+            {
+                trimmedQuery = formatedQuery.TrimEnd('|');
+            }
+
+            var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "PO/" + trimmedQuery);
+
+            try
+            {
+                var response = (HttpWebResponse)request.GetResponse();
+
+                responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+            }
+            catch (Exception e)
+            {
+                responseString = e.Message;
+            }
+
+            xml.LoadXml(responseString.ToString());
+
+            return xml;
+        }
     }
 }
