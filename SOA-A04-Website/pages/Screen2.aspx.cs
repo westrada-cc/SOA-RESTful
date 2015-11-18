@@ -34,6 +34,7 @@ namespace SOA_A04_Website
                     break;
             }
 
+            execTypeID.Value = exeType.ToString();
             execType = exeType;
         }
 

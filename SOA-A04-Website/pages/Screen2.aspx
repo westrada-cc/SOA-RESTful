@@ -13,6 +13,9 @@
             <header role="banner">
                 <h1>Crazy Melvins Shopping Emporium</h1>
             </header>
+
+            <input type="hidden" id="execTypeID" runat="server"/>
+
             <div class="po-genrator" id="CrazyMelvins_po_generator" role="form" runat="server">
                 Please generate a Purchase Order (P.O.)&nbsp;&nbsp;<input type="checkbox" id="poChkBoxID" name="poGenCheckBox" value="po" />
             </div>   
@@ -58,7 +61,7 @@
                  <!--User input field for City will be a TextBox-->
                 custID&nbsp;<input type="text" size="15" id="custID2" name="customer2" runat="server" />&nbsp;&nbsp;
                 <!--User input field for Street Address will be a TextBox-->
-                poNumber&nbsp;<input type="text" size="15" id="poNumberID" name="ponumber" runat="server" />&nbsp;&nbsp;
+                poNumber&nbsp;<input type="text" size="15" id="poNumberID" name="ponumber" textmode="password" runat="server" />&nbsp;&nbsp;
                 <!--User input field for City will be a TextBox-->
                 orderDate&nbsp;<input type="text" size="15" id="orderDateID" name="orderdate" runat="server" />MM-DD-YY&nbsp;&nbsp;
             </div>
@@ -86,7 +89,7 @@
             <div class="button-choices" id="CrazyMelvins_button_choices" role="article">   
                 <!--Create the submit button (used to submit the web form) and the cancel button (refreshes the page to a "blank slate" state)-->
                 <asp:Button ID="backBtn" runat="server" Text="Go Back" CausesValidation="false" OnClick="backBtn_Click" />
-                <asp:Button ID="executeBtn" runat="server" Text="Execute" OnClick="executeBtn_Click" />
+                <asp:Button ID="executeBtn" runat="server" Text="Execute" OnClick="executeBtn_Click" OnClientClick="return validateForm()"/>
                 <asp:Button ID="leaveBtn" runat="server" Text="Get me outta here!" CausesValidation="false"/>
                 <!--OnClientClick="return validateForm()"-->
             </div>
@@ -96,51 +99,187 @@
 </html>
 
 <script type="text/javascript">
-
+    
     function validateForm()
     {
         var result = 1;
+        var execType = document.getElementById('execTypeID').value;
 
         document.getElementById('errorMessage').innerHTML = '';
 
+        //Customer Section Validation
+        if (validateCustomerID() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Customer ID is invalid<br/>';
+            result = 0;
+        }
+        if (validateCustomerFirstName() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Customer First Name is invalid<br/>';
+            result = 0;
+        }
+        if (validateCustomerLastName() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Customer Last Name is invalid<br/>';
+            result = 0;
+        }
         if (validatePhoneNumber() === false)
         {
             document.getElementById('errorMessage').innerHTML += 'Customer Phone Number is invalid<br/>';
             result = 0;
         }
 
-        if (validateDate() === false) {
-            document.getElementById('errorMessage').innerHTML += 'Order Date is invalid<br/>';
+        //Product Section Validation
+        if (validateProductID() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Product ID is invalid<br/>';
             result = 0;
         }
-
-        if (validateWeight() === false) {
+        if (validateProductName() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Product Name is invalid<br/>';
+            result = 0;
+        }
+        if (validateProductPrice() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Product price is invalid<br/>';
+            result = 0;
+        }
+        if (validateProductWeight() === false)
+        {
             document.getElementById('errorMessage').innerHTML += 'Product Weight must be a number<br/>';
             result = 0;
         }
 
-        if (validatePrice() === false) {
-            document.getElementById('errorMessage').innerHTML += 'Product price is invalid<br/>';
+        //Order Section Validation
+        if (validateOrderID() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Order ID is invalid<br/>';
+            result = 0;
+        }
+        if (validateOrderCustomerID() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Order Customer ID is invalid<br/>';
+            result = 0;
+        }
+        if (validateOrderPoNumber() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Order P.O. NUmber is invalid<br/>';
+            result = 0;
+        }
+        if (validateOrderDate() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Order Date is invalid<br/>';
             result = 0;
         }
 
-        if (validateQuantity() === false) {
-            document.getElementById('errorMessage').innerHTML += 'Quantity must be a number<br/>';
+        //Cart Section Validation
+        if (validateCartOrderID() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Cart Order ID is invalid<br/>';
             result = 0;
         }
+        if (validateCartProductID() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Cart Product ID is invalid<br/>';
+            result = 0;
+        }
+        if (validateCartQuantity() === false)
+        {
+            document.getElementById('errorMessage').innerHTML += 'Cart Quantity must be a number<br/>';
+            result = 0;
+        }
+
+        document.getElementById('errorMessage').innerHTML += result;
 
         return Boolean(result);
+    }
+
+    function validateCustomerID()
+    {
+        var customerID = document.getElementById("custID").value;
+        var numRegex = /^-?[\d.]+(?:e-?\d+)?$/;
+
+        return numRegex.test(customerID);
+    }
+
+    function validateCustomerFirstName()
+    {
+        var customerFirstName = document.getElementById("firstNameID").value;
+        var numRegex = /^[a-z ,.'-]+$/i;
+
+        return numRegex.test(customerFirstName);
+    }
+
+    function validateCustomerLastName()
+    {
+        var customerLastName = document.getElementById("lastNameID").value;
+        var numRegex = /^[a-z ,.'-]+$/i;
+
+        return numRegex.test(customerLastName);
     }
 
     function validatePhoneNumber()
     {
         var phoneNumber = document.getElementById("phoneNumberID").value;
         var phoneRegex = /^\(?([0-9]{3})\)?[-]?([0-9]{3})[-]?([0-9]{4})$/;;
-
-        return phoneRegex.test(phoneNumber);
+        if (phoneNumber != null)
+        {
+            return phoneRegex.test(phoneNumber);
+        }
     }
 
-    function validateDate() 
+    function validateProductID()
+    {
+        var productID = document.getElementById("prodID").value;
+        var numRegex = /^-?[\d.]+(?:e-?\d+)?$/;
+
+        return numRegex.test(productID);
+    }
+
+    function validateProductName()
+    {
+
+    }
+
+    function validateProductPrice()
+    {
+        var price = document.getElementById("priceID").value;
+        var priceRegex = /^\d+(?:\.\d{0,2})$/;
+
+        return priceRegex.test(price);
+    }
+
+    function validateProductWeight()
+    {
+        var weight = document.getElementById("prodWeightID").value;
+        var numRegex = /^-?[\d.]+(?:e-?\d+)?$/;
+
+        return numRegex.test(weight);
+    }
+
+    function validateOrderID()
+    {
+        var orderID = document.getElementById("orderID").value;
+        var numRegex = /^-?[\d.]+(?:e-?\d+)?$/;
+
+        return numRegex.test(orderID);
+    }
+
+    function validateOrderCustomerID()
+    {
+        var customerID = document.getElementById("custID2").value;
+        var numRegex = /^-?[\d.]+(?:e-?\d+)?$/;
+
+        return numRegex.test(customerID);
+    }
+
+    function validateOrderPoNumber()
+    {
+
+    }
+
+    function validateOrderDate() 
     {
         var orderDate = document.getElementById("orderDateID").value;
         var orderDateRegex = /^\d{1,2}\-\d{1,2}\-\d{4}$/;;
@@ -148,15 +287,23 @@
         return orderDateRegex.test(orderDate);
     }
 
-    function validateWeight()
+    function validateCartOrderID()
     {
-        var weight = document.getElementById("prodWeightID").value;
+        var orderID = document.getElementById("orderID2").value;
         var numRegex = /^-?[\d.]+(?:e-?\d+)?$/;
-        
-        return numRegex.test(weight);
+
+        return numRegex.test(orderID);
     }
 
-    function validateQuantity()
+    function validateCartProductID()
+    {
+        var productID = document.getElementById("prodID2").value;
+        var numRegex = /^-?[\d.]+(?:e-?\d+)?$/;
+
+        return numRegex.test(productID);
+    }
+
+    function validateCartQuantity()
     {
         var quantity = document.getElementById("quantityID").value;
         var numRegex = /^-?[\d.]+(?:e-?\d+)?$/;
@@ -164,11 +311,5 @@
         return numRegex.test(quantity);
     }
 
-    function validatePrice()
-    {
-        var price = document.getElementById("priceID").value;
-        var priceRegex = /^\d+(?:\.\d{0,2})$/;
 
-        return priceRegex.test(price);
-    }
 </script>
