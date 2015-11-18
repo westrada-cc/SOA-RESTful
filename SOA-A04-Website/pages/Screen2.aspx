@@ -89,9 +89,8 @@
             <div class="button-choices" id="CrazyMelvins_button_choices" role="article">   
                 <!--Create the submit button (used to submit the web form) and the cancel button (refreshes the page to a "blank slate" state)-->
                 <asp:Button ID="backBtn" runat="server" Text="Go Back" CausesValidation="false" OnClick="backBtn_Click" />
-                <asp:Button ID="executeBtn" runat="server" Text="Execute" OnClick="executeBtn_Click" OnClientClick="return validateForm()"/>
+                <asp:Button ID="executeBtn" runat="server" Text="Execute" CausesValidation="true"  OnClientClick="return validateForm();" OnClick="executeBtn_Click"/>
                 <asp:Button ID="leaveBtn" runat="server" Text="Get me outta here!" CausesValidation="false"/>
-                <!--OnClientClick="return validateForm()"-->
             </div>
         </form>
     </div>
@@ -105,94 +104,344 @@
         var result = 1;
         var execType = document.getElementById('execTypeID').value;
 
+        var customerID = document.getElementById("custID").value;
+        var productID = document.getElementById("prodID").value;
+        var orderID = document.getElementById("orderID").value;
+        var customerID2 = document.getElementById("custID2").value;
+        var orderID2 = document.getElementById("orderID2").value;
+        var productID2 = document.getElementById("prodID2").value;
+
+        var customerTableEmpty = false;
+        var productTableEmpty = false;
+        var orderTableEmpty = false;
+        var cartTableEmpty = false;
+
+        var tablesToPerformOn = "";
+        var stringExecType = "";
+
         document.getElementById('errorMessage').innerHTML = '';
 
-        //Customer Section Validation
-        if (validateCustomerID() === false)
+        if (isCustomerTableEmpty())
         {
+            customerTableEmpty = true;
+        }
+        else
+        {
+            tablesToPerformOn += "Customer ";
+        }
+
+        if (isProductTableEmpty()) {
+            productTableEmpty = true;
+        }
+        else
+        {
+            tablesToPerformOn += "Product ";
+        }
+
+        if (isOrderTableEmpty())
+        {
+            orderTableEmpty = true;
+        }
+        else
+        {
+            tablesToPerformOn += "Order ";
+        }
+
+        if (isCartTableEmpty())
+        {
+            cartTableEmpty = true;
+        }
+        else
+        {
+            tablesToPerformOn += "Cart ";
+        }
+
+        //Search
+        if (execType === "0")
+        {
+            var poGenVal = document.getElementById('poChkBoxID').checked;
+            var firstName = document.getElementById('firstNameID').value;
+            var lastName = document.getElementById('lastNameID').value;
+            var poNumber = document.getElementById('poNumberID').value;
+            var orderDate = document.getElementById('orderDateID').value;
+
+            var valid = true;
+
+            stringExecType = "SEARCH";
+            if (poGenVal)
+            {
+                if (customerID !== null && customerID !== "")
+                {
+                    if (validateCustomerID() === false)
+                    {
+                        valid = false;
+                    }
+                }
+                if (firstName !== null && firstName !== "")
+                {
+                    if (validateCustomerFirstName() === false)
+                    {
+                        valid = false;
+                    }
+                }
+                if (lastName !== null && lastName !== "")
+                {
+                    document.getElementById('errorMessage').innerHTML += lastName;
+                    if (validateCustomerLastName() === false)
+                    {
+                        valid = false;
+                    }
+                }
+                if (orderID !== null && orderID !== "")
+                {
+                    if (validateOrderID() === false)
+                    {
+                        valid = false;
+                    }
+                }
+                if (poNumber !== null && poNumber !== "")
+                {
+                    if (validateOrderPoNumber() === false)
+                    {
+                        valid = false;
+                    }
+                }
+                if (orderDate !== null && orderDate !== "")
+                {
+                    if (validateOrderDate() === false)
+                    {
+                        valid = false;
+                    }
+                }
+
+                if (valid === false)
+                {
+                    document.getElementById('errorMessage').innerHTML = 'Can Not Generate Purchase Order.<BR/>Please check inputs for: orderID, custID, firstName, lastName, P.O. Number, and/or orderDate';
+                    return false;
+                }
+            }
+            else
+            {
+
+            }
+        }
+        //Update
+        else if (execType === "1")
+        {
+            stringExecType = "UPDATE";
+
+        }
+        //Insert
+        else if (execType === "2")
+        {
+            stringExecType = "INSERT";
+
+            if (customerID !== null && customerID !== "" ||
+                productID !== null && productID !== "" ||
+                orderID !== null && orderID !== "" ||
+                customerID2 !== null && customerID !== "" ||
+                orderID2 !== null && orderID2 !== "" /*||
+                productID2 !== null && productID2 !== ''*/)
+            {
+                document.getElementById('errorMessage').innerHTML = 'ID values are not allowed on INSERT';
+                return false;
+            }
+        }
+        //Delete
+        else
+        {
+            stringExecType = "DELETE";
+        }
+
+        if (execType !== "0")
+        {
+            if (customerTableEmpty === false && productTableEmpty === false ||
+                customerTableEmpty === false && orderTableEmpty === false ||
+                customerTableEmpty === false && cartTableEmpty === false ||
+                productTableEmpty === false && orderTableEmpty === false ||
+                productTableEmpty === false && cartTableEmpty === false ||
+                orderTableEmpty === false && cartTableEmpty === false)
+            {
+                document.getElementById('errorMessage').innerHTML = 'Can not ' + stringExecType + ' on multiple tables: ' + tablesToPerformOn;
+                return false;
+            }
+        }
+
+        if (customerTableEmpty &&
+            orderTableEmpty &&
+            productTableEmpty &&
+            cartTableEmpty) {
+            document.getElementById('errorMessage').innerHTML += 'Can not ' + stringExecType + ' when tables are empty';
+            return false;
+        }
+
+        return Boolean(result);
+    }
+
+    function validateCustomerTable()
+    {
+        var result = 1;
+
+        //Customer Section Validation
+        if (validateCustomerID() === false) {
             document.getElementById('errorMessage').innerHTML += 'Customer ID is invalid<br/>';
             result = 0;
         }
-        if (validateCustomerFirstName() === false)
-        {
+        if (validateCustomerFirstName() === false) {
             document.getElementById('errorMessage').innerHTML += 'Customer First Name is invalid<br/>';
             result = 0;
         }
-        if (validateCustomerLastName() === false)
-        {
+        if (validateCustomerLastName() === false) {
             document.getElementById('errorMessage').innerHTML += 'Customer Last Name is invalid<br/>';
             result = 0;
         }
-        if (validatePhoneNumber() === false)
-        {
+        if (validatePhoneNumber() === false) {
             document.getElementById('errorMessage').innerHTML += 'Customer Phone Number is invalid<br/>';
             result = 0;
         }
 
+        return Boolean(result);
+    }
+
+    function validateProductTable()
+    {
+        var result = 1;
+
         //Product Section Validation
-        if (validateProductID() === false)
-        {
+        if (validateProductID() === false) {
             document.getElementById('errorMessage').innerHTML += 'Product ID is invalid<br/>';
             result = 0;
         }
-        if (validateProductName() === false)
-        {
+        if (validateProductName() === false) {
             document.getElementById('errorMessage').innerHTML += 'Product Name is invalid<br/>';
             result = 0;
         }
-        if (validateProductPrice() === false)
-        {
+        if (validateProductPrice() === false) {
             document.getElementById('errorMessage').innerHTML += 'Product price is invalid<br/>';
             result = 0;
         }
-        if (validateProductWeight() === false)
-        {
+        if (validateProductWeight() === false) {
             document.getElementById('errorMessage').innerHTML += 'Product Weight must be a number<br/>';
             result = 0;
         }
 
+        return Boolean(result);
+    }
+
+    function validateOrderTable()
+    {
+        var result = 1;
+
         //Order Section Validation
-        if (validateOrderID() === false)
-        {
+        if (validateOrderID() === false) {
             document.getElementById('errorMessage').innerHTML += 'Order ID is invalid<br/>';
             result = 0;
         }
-        if (validateOrderCustomerID() === false)
-        {
+        if (validateOrderCustomerID() === false) {
             document.getElementById('errorMessage').innerHTML += 'Order Customer ID is invalid<br/>';
             result = 0;
         }
-        if (validateOrderPoNumber() === false)
-        {
+        if (validateOrderPoNumber() === false) {
             document.getElementById('errorMessage').innerHTML += 'Order P.O. NUmber is invalid<br/>';
             result = 0;
         }
-        if (validateOrderDate() === false)
-        {
+        if (validateOrderDate() === false) {
             document.getElementById('errorMessage').innerHTML += 'Order Date is invalid<br/>';
             result = 0;
         }
 
+        return Boolean(result);
+    }
+
+    function validateCartTable()
+    {
+        var result = 1;
+
         //Cart Section Validation
-        if (validateCartOrderID() === false)
-        {
+        if (validateCartOrderID() === false) {
             document.getElementById('errorMessage').innerHTML += 'Cart Order ID is invalid<br/>';
             result = 0;
         }
-        if (validateCartProductID() === false)
-        {
+        if (validateCartProductID() === false) {
             document.getElementById('errorMessage').innerHTML += 'Cart Product ID is invalid<br/>';
             result = 0;
         }
-        if (validateCartQuantity() === false)
-        {
+        if (validateCartQuantity() === false) {
             document.getElementById('errorMessage').innerHTML += 'Cart Quantity must be a number<br/>';
             result = 0;
         }
 
-        document.getElementById('errorMessage').innerHTML += result;
-
         return Boolean(result);
+    }
+
+    function isCustomerTableEmpty()
+    {
+        var customerID = document.getElementById("custID").value;
+        var firstName = document.getElementById("firstNameID").value;
+        var lastName = document.getElementById("lastNameID").value;
+        var phoneNumber = document.getElementById("phoneNumberID").value;
+
+        if (customerID !== null && customerID !== "" ||
+            firstName !== null && firstName !== "" ||
+            lastName !== null && lastName !== "" ||
+            phoneNumber !== null && phoneNumber !== "")
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    function isProductTableEmpty()
+    {
+        var productID = document.getElementById("prodID").value;
+        var productName = document.getElementById("prodNameID").value;
+        var productPrice = document.getElementById("priceID").value;
+        var productWeight = document.getElementById("prodWeightID").value;
+
+        if (productID !== null && productID !== "" ||
+            productName !== null && productName !== "" ||
+            productPrice !== null && productPrice !== "" ||
+            productWeight !== null && productWeight !== "")
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    function isOrderTableEmpty()
+    {
+        var orderID = document.getElementById("orderID").value;
+        var customerID= document.getElementById("custID2").value;
+        var poNumber = document.getElementById("poNumberID").value;
+        var orderDate = document.getElementById("orderDateID").value;
+
+        if (orderID !== null && orderID !== "" ||
+            customerID !== null && customerID !== "" ||
+            poNumber !== null && poNumber !== "" ||
+            orderDate !== null && orderDate !== "")
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    function isCartTableEmpty()
+    {
+        var orderID = document.getElementById("orderID2").value;
+        var productID = document.getElementById("prodID2").value;
+        var quantity = document.getElementById("quantityID").value;
+
+        if (orderID !== null && orderID !== "" ||
+            productID !== null && productID !== "" ||
+            quantity !== null && quantity !== "")
+        {
+            return false;
+        }
+
+        return true;
     }
 
     function validateCustomerID()
@@ -207,7 +456,7 @@
     {
         var customerFirstName = document.getElementById("firstNameID").value;
         var numRegex = /^[a-z ,.'-]+$/i;
-
+        
         return numRegex.test(customerFirstName);
     }
 
@@ -222,11 +471,9 @@
     function validatePhoneNumber()
     {
         var phoneNumber = document.getElementById("phoneNumberID").value;
-        var phoneRegex = /^\(?([0-9]{3})\)?[-]?([0-9]{3})[-]?([0-9]{4})$/;;
-        if (phoneNumber != null)
-        {
-            return phoneRegex.test(phoneNumber);
-        }
+        var phoneRegex = /^\(?([0-9]{3})\)?[-]?([0-9]{3})[-]?([0-9]{4})$/;
+
+        return phoneRegex.test(phoneNumber);
     }
 
     function validateProductID()
