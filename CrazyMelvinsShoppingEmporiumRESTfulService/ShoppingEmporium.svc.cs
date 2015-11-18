@@ -38,19 +38,9 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public object[] Search(string search)
         {
-            if (search != null && search.Length > 0 && search.Contains("="))
+            var arguments = this.ParseArguments(search);
+            if (arguments != null)
             {
-                var arguments = new Dictionary<string, string>(); // this is where we are going to store parsed arguments.
-                var searchBits = search.Split(new string[] {"|"}, StringSplitOptions.None);
-                foreach (var bit in searchBits)
-                {
-                    var argumentAndValue = bit.Split(new string[] {"="}, StringSplitOptions.None);
-                    if (argumentAndValue.Count() == 2)
-                    {
-                        arguments.Add(argumentAndValue[0], argumentAndValue[1]);
-                    }
-                }
-
                 // if any from order date and customer when return orders for that customer
                 if ((arguments.ContainsKey(Order_orderID) ||
                     arguments.ContainsKey(Order_custID) ||
@@ -62,32 +52,29 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     arguments.ContainsKey(Customer_lastName) ||
                     arguments.ContainsKey(Customer_phoneNumber)))
                 {
-                    using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                    var mathcingCustomers = this.GetCustomerBy(
+                        arguments.ContainsKey(Customer_custID) ? int.Parse(arguments[Customer_custID]) as int? : null,
+                        arguments.ContainsKey(Customer_firstName) ? arguments[Customer_firstName] : null,
+                        arguments.ContainsKey(Customer_lastName) ? arguments[Customer_lastName] : null,
+                        arguments.ContainsKey(Customer_phoneNumber) ? arguments[Customer_phoneNumber] : null);
+
+                    if (mathcingCustomers.Count > 1)
                     {
-                        var mathcingCustomers = this.GetCustomerBy(
-                            arguments.ContainsKey(Customer_custID) ? int.Parse(arguments[Customer_custID]) as int? : null,
-                            arguments.ContainsKey(Customer_firstName) ? arguments[Customer_firstName] : null,
-                            arguments.ContainsKey(Customer_lastName) ? arguments[Customer_lastName] : null,
-                            arguments.ContainsKey(Customer_phoneNumber) ? arguments[Customer_phoneNumber] : null);
+                        throw new WebFaultException<Error>(new Error("Cannot get order for more then 1 customer.",""), System.Net.HttpStatusCode.BadRequest);
+                    }
+                    else
+                    {
+                        var ordersMadeByCustomer = this.GetOrderBy(
+                        arguments.ContainsKey(Order_orderID) ? int.Parse(arguments[Order_orderID]) as int? : null,
+                        mathcingCustomers.First().custID,
+                        arguments.ContainsKey(Order_poNumber) ? arguments[Order_poNumber] : null,
+                        arguments.ContainsKey(Order_orderDate) ? DateTime.Parse(arguments[Order_orderDate]) as DateTime? : null);
 
-                        if (mathcingCustomers.Count > 1)
+                        return new object[]
                         {
-                            throw new WebFaultException<Error>(new Error("Cannot get order for more then 1 customer.",""), System.Net.HttpStatusCode.BadRequest);
-                        }
-                        else
-                        {
-                            var ordersMadeByCustomer = this.GetOrderBy(
-                            arguments.ContainsKey(Order_orderID) ? int.Parse(arguments[Order_orderID]) as int? : null,
-                            mathcingCustomers.First().custID,
-                            arguments.ContainsKey(Order_poNumber) ? arguments[Order_poNumber] : null,
-                            arguments.ContainsKey(Order_orderDate) ? DateTime.Parse(arguments[Order_orderDate]) as DateTime? : null);
-
-                            return new object[]
-                            {
-                                mathcingCustomers.First(),
-                                ordersMadeByCustomer.First()
-                            };
-                        }
+                            mathcingCustomers.First(),
+                            ordersMadeByCustomer.First()
+                        };
                     }
                 }
 
@@ -147,8 +134,12 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                         arguments.ContainsKey(Product_inStock) ? bool.Parse(arguments[Product_inStock]) as bool? : null).ToArray();
                 }
             }
+            else
+            {
+                throw new WebFaultException<Error>(new Error("Argument formatting invalid!", ""), System.Net.HttpStatusCode.BadRequest);
+            }
 
-            return null;
+            throw new WebFaultException<Error>(new Error("No Brain. I cannot figure out what you want from me BRO!", "Service is stupid to interpret your request. Please contact you plumber for help. We hope this helps."), System.Net.HttpStatusCode.BadRequest);
         }
 
         public IList<Customer> GetCustomerBy(int? custID, string firstName, string lastName, string phoneNumber)
@@ -309,7 +300,120 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public PurchaseOrder GetPurchaseOrder(string parameters)
         {
-            return null;
+            var arguments = this.ParseArguments(parameters);
+            if (arguments != null)
+            {
+                // Check if we can find at least 1 customer and order argument and does not have any other arguments that are not properties of customer and order.
+
+                // arguments only contain customer and order arguments.
+                var argumentsThatAreForCustomerOrOrder = arguments.Keys.Where(
+                    key => key == Customer_custID ||
+                    key == Customer_firstName ||
+                    key == Customer_lastName ||
+                    key == Order_custID ||
+                    key == Order_orderDate ||
+                    key == Order_orderID ||
+                    key == Order_poNumber);
+                if (argumentsThatAreForCustomerOrOrder.Count() == arguments.Count)
+                {
+                    // Check if we have at least one of both
+                    if ((arguments.ContainsKey(Order_orderID) ||
+                        arguments.ContainsKey(Order_custID) ||
+                        arguments.ContainsKey(Order_poNumber) ||
+                        arguments.ContainsKey(Order_orderDate))
+                        &&
+                        (arguments.ContainsKey(Customer_custID) ||
+                        arguments.ContainsKey(Customer_firstName) ||
+                        arguments.ContainsKey(Customer_lastName)))
+                    {
+                        
+                        var matchingCustomers = this.GetCustomerBy(
+                            arguments.ContainsKey(Customer_custID) ? int.Parse(arguments[Customer_custID]) as int? : null,
+                            arguments.ContainsKey(Customer_firstName) ? arguments[Customer_firstName] : null,
+                            arguments.ContainsKey(Customer_lastName) ? arguments[Customer_lastName] : null,
+                            arguments.ContainsKey(Customer_phoneNumber) ? arguments[Customer_phoneNumber] : null);
+
+                        if (matchingCustomers.Count > 1)
+                        {
+                            throw new WebFaultException<Error>(new Error("Cannot get order for more then 1 customer.", ""), System.Net.HttpStatusCode.BadRequest);
+                        }
+                        else
+                        {
+                            var matchingCustomer = matchingCustomers.First();
+                            var ordersMadeByCustomer = this.GetOrderBy(
+                                arguments.ContainsKey(Order_orderID) ? int.Parse(arguments[Order_orderID]) as int? : null,
+                                matchingCustomer.custID,
+                                arguments.ContainsKey(Order_poNumber) ? arguments[Order_poNumber] : null,
+                                arguments.ContainsKey(Order_orderDate) ? DateTime.Parse(arguments[Order_orderDate]) as DateTime? : null);
+
+                            if (ordersMadeByCustomer == null && ordersMadeByCustomer.Count == 0)
+                            {
+                                throw new WebFaultException<Error>(new Error("No such order.", ""), System.Net.HttpStatusCode.BadRequest);
+                            }
+                            else
+                            {
+                                var po = new PurchaseOrder()
+                                {
+                                    Customer = matchingCustomer,
+                                    Order = ordersMadeByCustomer.First(),
+                                    OrderedProducts = new List<OrderedProduct>()
+                                };
+
+                                // We need to get EF Model again because above order was not tracked by EF.
+                                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                                {
+                                    var order = context.Orders.Where(o => o.orderID == po.Order.orderID).First();
+                                    foreach (var cart in order.Carts)
+                                    {
+                                        po.OrderedProducts.Add(new OrderedProduct()
+                                        {
+                                            Product = new Product(cart.Product),
+                                            quantity = cart.quantity
+                                        });
+                                    }
+                                }
+
+                                return po;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new WebFaultException<Error>(new Error("Minimum 1 customer and 1 order argument required!", "(custID OR lastName OR firstName) and (orderID OR poNumber OR orderDate)"), System.Net.HttpStatusCode.BadRequest);
+                    }
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Only customer and order arguments allowed.", "(custID OR lastName OR firstName) and (orderID OR poNumber OR orderDate)"), System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                throw new WebFaultException<Error>(new Error("Argument formatting invalid!", ""), System.Net.HttpStatusCode.BadRequest);
+            }
+        }
+
+        private Dictionary<string,string> ParseArguments(string arguments)
+        {
+            if (arguments != null && arguments.Length > 0 && arguments.Contains("="))
+            {
+                var parsedArguments = new Dictionary<string, string>(); // this is where we are going to store parsed arguments.
+                var searchBits = arguments.Split(new string[] { "|" }, StringSplitOptions.None);
+                foreach (var bit in searchBits)
+                {
+                    var argumentAndValue = bit.Split(new string[] { "=" }, StringSplitOptions.None);
+                    if (argumentAndValue.Count() == 2)
+                    {
+                        parsedArguments.Add(argumentAndValue[0], argumentAndValue[1]);
+                    }
+                }
+
+                return parsedArguments;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         #region | Customers |
