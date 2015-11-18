@@ -20,6 +20,7 @@ namespace Service_API
         {
             XmlDocument xml = new XmlDocument();
             XmlDocument resultXml = new XmlDocument();
+            string result = "";
             xml.RemoveAll();
 
             string values = string.Format(@"<Customer xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
@@ -35,16 +36,24 @@ namespace Service_API
             request.KeepAlive = false;
             request.Method = "POST";
             request.ContentType = "text/xml;charset=\"utf-8\"";
-            using (Stream stream = request.GetRequestStream())
+
+            try
             {
-                xml.Save(stream);
+                using (Stream stream = request.GetRequestStream())
+                {
+                    xml.Save(stream);
+                }
+
+                var response = (HttpWebResponse)request.GetResponse();
+
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                result = sr.ReadToEnd();
+                sr.Close();
             }
-
-            var response = (HttpWebResponse)request.GetResponse();
-
-            StreamReader sr = new StreamReader(response.GetResponseStream());
-            string result = sr.ReadToEnd();
-            sr.Close();
+            catch (Exception e)
+            {
+                result = e.Message;
+            }
 
             if (result != "")
             {
@@ -58,6 +67,8 @@ namespace Service_API
         {
             XmlDocument xml = new XmlDocument();
             XmlDocument resultXml = new XmlDocument();
+            string result = "";
+
             xml.RemoveAll();
 
             string values = string.Format(@"<Product xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
@@ -74,17 +85,24 @@ namespace Service_API
             request.KeepAlive = false;
             request.Method = "POST";
             request.ContentType = "text/xml;charset=\"utf-8\"";
-            using (Stream stream = request.GetRequestStream())
+
+            try
             {
-                xml.Save(stream);
+                using (Stream stream = request.GetRequestStream())
+                {
+                    xml.Save(stream);
+                }
+
+                var response = (HttpWebResponse)request.GetResponse();
+
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                result = sr.ReadToEnd();
+                sr.Close();
             }
-
-            //WebResponse response = request.GetResponse();
-            var response = (HttpWebResponse)request.GetResponse();
-
-            StreamReader sr = new StreamReader(response.GetResponseStream());
-            string result = sr.ReadToEnd();
-            sr.Close();
+            catch (Exception e)
+            {
+                result = e.Message;
+            }
 
             if (result != "")
             {
@@ -98,6 +116,8 @@ namespace Service_API
         {
             XmlDocument xml = new XmlDocument();
             XmlDocument resultXml = new XmlDocument();
+            string result = "";
+
             xml.RemoveAll();
 
             string values = string.Format(@"<Order xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
@@ -109,20 +129,28 @@ namespace Service_API
 
             xml.LoadXml(values);
 
-            var request = WebRequest.Create(SERVICE_URL + "Customers/") as HttpWebRequest;
+            var request = WebRequest.Create(SERVICE_URL + "Orders/") as HttpWebRequest;
             request.KeepAlive = false;
             request.Method = "POST";
             request.ContentType = "text/xml;charset=\"utf-8\"";
-            using (Stream stream = request.GetRequestStream())
+
+            try
             {
-                xml.Save(stream);
+                using (Stream stream = request.GetRequestStream())
+                {
+                    xml.Save(stream);
+                }
+
+                var response = (HttpWebResponse)request.GetResponse();
+
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                result = sr.ReadToEnd();
+                sr.Close();
             }
-
-            var response = (HttpWebResponse)request.GetResponse();
-
-            StreamReader sr = new StreamReader(response.GetResponseStream());
-            string result = sr.ReadToEnd();
-            sr.Close();
+            catch (Exception e)
+            {
+                result = e.Message;
+            }
 
             if (result != "")
             {
@@ -136,6 +164,8 @@ namespace Service_API
         {
             XmlDocument xml = new XmlDocument();
             XmlDocument resultXml = new XmlDocument();
+            string result = "";
+
             xml.RemoveAll();
 
             string values = string.Format(@"<Cart xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
@@ -146,20 +176,28 @@ namespace Service_API
 
             xml.LoadXml(values);
 
-            var request = WebRequest.Create(SERVICE_URL + "Customers/") as HttpWebRequest;
+            var request = WebRequest.Create(SERVICE_URL + "Carts/") as HttpWebRequest;
             request.KeepAlive = false;
             request.Method = "POST";
             request.ContentType = "text/xml;charset=\"utf-8\"";
-            using (Stream stream = request.GetRequestStream())
+
+            try
             {
-                xml.Save(stream);
+                using (Stream stream = request.GetRequestStream())
+                {
+                    xml.Save(stream);
+                }
+
+                var response = (HttpWebResponse)request.GetResponse();
+
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                result = sr.ReadToEnd();
+                sr.Close();
             }
-
-            var response = (HttpWebResponse)request.GetResponse();
-
-            StreamReader sr = new StreamReader(response.GetResponseStream());
-            string result = sr.ReadToEnd();
-            sr.Close();
+            catch (Exception e)
+            {
+                result = e.Message;
+            }
 
             if (result != "")
             {
@@ -171,87 +209,196 @@ namespace Service_API
         #endregion
 
         #region update methods
-        public void updateCustomer(int customerID, string firstName, string lastName, string phoneNumber)
+        public XmlDocument updateCustomer(int customerID, string firstName, string lastName, string phoneNumber)
         {
             XmlDocument xml = new XmlDocument();
+            XmlDocument resultXml = new XmlDocument();
+            string result = "";
 
-            string values = @"<Customer p1:Id=""NCNameString"" p1:Ref=""NCNameString"" xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
-                    <custID>2</custID>
-                    <firstName>anthony</firstName>
-                    <lastName>Salutari</lastName>
-                    <phoneNumber>123-123-1234</phoneNumber>
-                    </Customer>";
+            xml.RemoveAll();
+
+            string values = string.Format(@"<Customer xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
+                    <custID>{0}</custID>
+                    <firstName>{1}</firstName>
+                    <lastName>{2}</lastName>
+                    <phoneNumber>{3}</phoneNumber>
+                    </Customer>", customerID, firstName, lastName, phoneNumber);
 
             xml.LoadXml(values);
-
-            int xmlLength = values.Length * sizeof(char);
 
             var request = WebRequest.Create(SERVICE_URL + @"customers/") as HttpWebRequest;
             request.KeepAlive = false;
             request.Method = "PUT";
-            request.ContentLength = xmlLength;
             request.ContentType = "text/xml;charset=\"utf-8\"";
-            using (Stream stream = request.GetRequestStream())
+
+            try
             {
-                xml.Save(stream);
+                using (Stream stream = request.GetRequestStream())
+                {
+                    xml.Save(stream);
+                }
+
+                var response = (HttpWebResponse)request.GetResponse();
+
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                result = sr.ReadToEnd();
+                sr.Close();
+            }
+            catch (Exception e)
+            {
+                result = e.Message;
             }
 
-            var response = (HttpWebResponse)request.GetResponse();
+            if (result != "")
+            {
+                resultXml.LoadXml(result);
+            }
 
-            StreamReader sr = new StreamReader(response.GetResponseStream());
-            string result = sr.ReadToEnd();
-            sr.Close();
+            return resultXml;
         }
 
-        public void updateProduct(int productID, string productName, float price, float productWeight, bool soldOut)
+        public XmlDocument updateProduct(int productID, string productName, float price, float productWeight, bool soldOut)
         {
-            client = new HttpClient();
+            XmlDocument xml = new XmlDocument();
+            XmlDocument resultXml = new XmlDocument();
+            string result = "";
 
-            var values = new Dictionary<string, string>
+            xml.RemoveAll();
+
+            string values = string.Format(@"<Product xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
+                    <inStock>{0}</inStock>
+                    <price>{1}</price>
+                    <prodID>{2}</prodID>
+                    <prodName>{3}</prodName>
+                    <prodWeight>{4}</prodWeight>
+                    </Product>", soldOut, price, productName, productWeight);
+
+            xml.LoadXml(values);
+
+            var request = WebRequest.Create(SERVICE_URL + "Products/") as HttpWebRequest;
+            request.KeepAlive = false;
+            request.Method = "PUT";
+            request.ContentType = "text/xml;charset=\"utf-8\"";
+
+            try
             {
-                { "inStock", soldOut.ToString() },
-                { "price", price.ToString() },
-                { "prodID", productID.ToString() },
-                { "prodName", productName },
-                { "prodWeight", productWeight.ToString() }
-            };
+                using (Stream stream = request.GetRequestStream())
+                {
+                    xml.Save(stream);
+                }
 
-            var content = new FormUrlEncodedContent(values);
+                var response = (HttpWebResponse)request.GetResponse();
 
-            var response = client.PutAsync(SERVICE_URL + "products/", content);
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                result = sr.ReadToEnd();
+                sr.Close();
+            }
+            catch (Exception e)
+            {
+                result = e.Message;
+            }
+
+            if (result != "")
+            {
+                resultXml.LoadXml(result);
+            }
+
+            return resultXml;
         }
 
-        public void updateOrder(int orderID, int customerID, string poNumber, string orderDate)
+        public XmlDocument updateOrder(int orderID, int customerID, string poNumber, string orderDate)
         {
-            client = new HttpClient();
+            XmlDocument xml = new XmlDocument();
+            XmlDocument resultXml = new XmlDocument();
+            string result = "";
 
-            var values = new Dictionary<string, string>
+            xml.RemoveAll();
+
+            string values = string.Format(@"<Order xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
+                    <custID>{0}</custID>
+                    <orderDate>{1}</orderDate>
+                    <orderID>{2}</orderID>
+                    <poNumber>{3}</poNumber>
+                    </Order>", customerID, orderDate, orderID, poNumber);
+
+            xml.LoadXml(values);
+
+            var request = WebRequest.Create(SERVICE_URL + "Orders/") as HttpWebRequest;
+            request.KeepAlive = false;
+            request.Method = "PUT";
+            request.ContentType = "text/xml;charset=\"utf-8\"";
+
+            try
             {
-                { "custID", customerID.ToString() },
-                { "orderDate", orderDate },
-                { "orderID", orderID.ToString() },
-                { "poNumber", poNumber }
-            };
+                using (Stream stream = request.GetRequestStream())
+                {
+                    xml.Save(stream);
+                }
 
-            var content = new FormUrlEncodedContent(values);
+                var response = (HttpWebResponse)request.GetResponse();
 
-            var response = client.PutAsync(SERVICE_URL + "orders/", content);
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                result = sr.ReadToEnd();
+                sr.Close();
+            }
+            catch (Exception e)
+            {
+                result = e.Message;
+            }
+
+            if (result != "")
+            {
+                resultXml.LoadXml(result);
+            }
+
+            return resultXml;
         }
 
-        public void updateCart(int orderID, int productID, int quantity)
+        public XmlDocument updateCart(int orderID, int productID, int quantity)
         {
-            client = new HttpClient();
+            XmlDocument xml = new XmlDocument();
+            XmlDocument resultXml = new XmlDocument();
+            string result = "";
 
-            var values = new Dictionary<string, string>
+            xml.RemoveAll();
+
+            string values = string.Format(@"<Cart xmlns:p1=""http://schemas.microsoft.com/2003/10/Serialization/"" xmlns=""http://schemas.datacontract.org/2004/07/CrazyMelvinsShoppingEmporiumRESTfulService"">
+                    <orderID>{0}</orderID>
+                    <prodID>{1}</prodID>
+                    <quantity>{2}</quantity>
+                    </Cart>", orderID, productID, quantity);
+
+            xml.LoadXml(values);
+
+            var request = WebRequest.Create(SERVICE_URL + "Carts/") as HttpWebRequest;
+            request.KeepAlive = false;
+            request.Method = "PUT";
+            request.ContentType = "text/xml;charset=\"utf-8\"";
+
+            try
             {
-                { "orderID", orderID.ToString() },
-                { "prodID", productID.ToString() },
-                { "quantity", quantity.ToString() }
-            };
+                using (Stream stream = request.GetRequestStream())
+                {
+                    xml.Save(stream);
+                }
 
-            var content = new FormUrlEncodedContent(values);
+                var response = (HttpWebResponse)request.GetResponse();
 
-            var response = client.PutAsync(SERVICE_URL + "carts/", content);
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                result = sr.ReadToEnd();
+                sr.Close();
+            }
+            catch (Exception e)
+            {
+                result = e.Message;
+            }
+
+            if (result != "")
+            {
+                resultXml.LoadXml(result);
+            }
+
+            return resultXml;
         }
         #endregion
 
@@ -261,7 +408,14 @@ namespace Service_API
             var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Customers/" + customerID.ToString());
             request.Method = "DELETE";
 
-            var response = (HttpWebResponse)request.GetResponse();
+            try
+            {
+                var response = (HttpWebResponse)request.GetResponse();
+            }
+            catch(Exception e)
+            {
+
+            }
         }
 
         public void deleteProduct(int productID, string productName, float price, float productWeight, bool soldOut)
@@ -269,7 +423,14 @@ namespace Service_API
             var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Products/" + productID.ToString());
             request.Method = "DELETE";
 
-            var response = (HttpWebResponse)request.GetResponse();
+            try
+            {
+                var response = (HttpWebResponse)request.GetResponse();
+            }
+            catch(Exception e)
+            {
+
+            }
         }
 
         public void deleteOrder(int orderID, int customerID, string poNumber, string orderDate)
@@ -277,7 +438,14 @@ namespace Service_API
             var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Orders/" + orderID.ToString());
             request.Method = "DELETE";
 
-            var response = (HttpWebResponse)request.GetResponse();
+            try
+            {
+                var response = (HttpWebResponse)request.GetResponse();
+            }
+            catch(Exception e)
+            {
+
+            }
         }
 
         public void deleteCart(int orderID, int productID, int quantity)
@@ -285,7 +453,14 @@ namespace Service_API
             var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "Carts/" + orderID.ToString());
             request.Method = "DELETE";
 
-            var response = (HttpWebResponse)request.GetResponse();
+            try
+            {
+                var response = (HttpWebResponse)request.GetResponse();
+            }
+            catch(Exception e)
+            {
+
+            }
         }
         #endregion
 
@@ -296,6 +471,7 @@ namespace Service_API
             XmlDocument xml = new XmlDocument();
             string formatedQuery = null;
             string trimmedQuery = null;
+            string responseString = null;
 
             foreach (KeyValuePair<string, string> pair in query)
             {
@@ -309,9 +485,16 @@ namespace Service_API
 
             var request = (HttpWebRequest)WebRequest.Create(SERVICE_URL + "search/" + trimmedQuery);
 
-            var response = (HttpWebResponse)request.GetResponse();
+            try
+            {
+                var response = (HttpWebResponse)request.GetResponse();
 
-            var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+            }
+            catch(Exception e)
+            {
+                responseString = e.Message;
+            }
 
             xml.LoadXml(responseString.ToString());
 
