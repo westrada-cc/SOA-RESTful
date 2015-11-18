@@ -113,6 +113,7 @@
     <Compile Include="Models\ProductPartial.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Product.cs" />
+    <Compile Include="PurchaseOrder.cs" />
     <Compile Include="ShoppingEmporium.svc.cs">
       <DependentUpon>ShoppingEmporium.svc</DependentUpon>
     </Compile>

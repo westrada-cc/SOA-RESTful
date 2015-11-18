@@ -15,6 +15,27 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
     
     public class ShoppingEmporium : IShoppingEmporium
     {
+        const string Customer_custID = "custID";
+        const string Customer_firstName = "firstName";
+        const string Customer_lastName = "lastName";
+        const string Customer_phoneNumber = "phoneNumber";
+
+        const string Product_prodID = "prodID";
+        const string Product_prodName = "prodName";
+        const string Product_price = "price";
+        const string Product_prodWeight = "prodWeight";
+        const string Product_inStock = "inStock";
+
+        const string Order_orderID = "orderID";
+        const string Order_custID = "custID";
+        const string Order_poNumber = "poNumber";
+        const string Order_orderDate = "orderDate";
+
+        const string Cart_orderID = "orderID";
+        const string Cart_prodID = "prodID";
+        const string Cart_quantity = "quantity";
+
+
         public object[] Search(string search)
         {
             if (search != null && search.Length > 0 && search.Contains("="))
@@ -29,27 +50,6 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                         arguments.Add(argumentAndValue[0], argumentAndValue[1]);
                     }
                 }
-
-                const string Customer_custID = "custID";
-                const string Customer_firstName = "firstName";
-                const string Customer_lastName = "lastName";
-                const string Customer_phoneNumber = "phoneNumber";
-
-                const string Product_prodID = "prodID";
-                const string Product_prodName = "prodName";
-                const string Product_price = "price";
-                const string Product_prodWeight = "prodWeight";
-                const string Product_inStock = "inStock";
-
-                const string Order_orderID = "orderID";
-                const string Order_custID = "custID";
-                const string Order_poNumber = "poNumber";
-                const string Order_orderDate = "orderDate";
-
-                const string Cart_orderID = "orderID";
-                const string Cart_prodID = "prodID";
-                const string Cart_quantity = "quantity";
-
 
                 // if any from order date and customer when return orders for that customer
                 if ((arguments.ContainsKey(Order_orderID) ||
@@ -305,6 +305,11 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                     throw new WebFaultException<Error>(new Error("Order not found", ""), System.Net.HttpStatusCode.NotFound);
                 }
             }
+        }
+
+        public PurchaseOrder GetPurchaseOrder(string parameters)
+        {
+            return null;
         }
 
         #region | Customers |
