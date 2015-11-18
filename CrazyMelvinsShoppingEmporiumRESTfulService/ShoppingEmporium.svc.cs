@@ -38,32 +38,24 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public object[] Search(string search)
         {
-            if (search != null && search.Length > 0 && search.Contains("="))
+            try
             {
-                var arguments = new Dictionary<string, string>(); // this is where we are going to store parsed arguments.
-                var searchBits = search.Split(new string[] {"|"}, StringSplitOptions.None);
-                foreach (var bit in searchBits)
+                var arguments = this.ParseArguments(search);
+                if (arguments != null)
                 {
-                    var argumentAndValue = bit.Split(new string[] {"="}, StringSplitOptions.None);
-                    if (argumentAndValue.Count() == 2)
+                    // if any from order date and customer when return orders for that customer
+                    if ((arguments.ContainsKey(Order_orderID) ||
+                        arguments.ContainsKey(Order_custID) ||
+                        arguments.ContainsKey(Order_poNumber) ||
+                        arguments.ContainsKey(Order_orderDate))
+                        &&
+                        (arguments.ContainsKey(Customer_custID) ||
+                        arguments.ContainsKey(Customer_firstName) ||
+                        arguments.ContainsKey(Customer_lastName) ||
+                        arguments.ContainsKey(Customer_phoneNumber)))
                     {
-                        arguments.Add(argumentAndValue[0], argumentAndValue[1]);
-                    }
-                }
 
-                // if any from order date and customer when return orders for that customer
-                if ((arguments.ContainsKey(Order_orderID) ||
-                    arguments.ContainsKey(Order_custID) ||
-                    arguments.ContainsKey(Order_poNumber) ||
-                    arguments.ContainsKey(Order_orderDate)) 
-                    &&
-                    (arguments.ContainsKey(Customer_custID) ||
-                    arguments.ContainsKey(Customer_firstName) ||
-                    arguments.ContainsKey(Customer_lastName) ||
-                    arguments.ContainsKey(Customer_phoneNumber)))
-                {
-                    using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
-                    {
+
                         var mathcingCustomers = this.GetCustomerBy(
                             arguments.ContainsKey(Customer_custID) ? int.Parse(arguments[Customer_custID]) as int? : null,
                             arguments.ContainsKey(Customer_firstName) ? arguments[Customer_firstName] : null,
@@ -72,15 +64,26 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
                         if (mathcingCustomers.Count > 1)
                         {
-                            throw new WebFaultException<Error>(new Error("Cannot get order for more then 1 customer.",""), System.Net.HttpStatusCode.BadRequest);
+                            throw new WebFaultException<Error>(new Error("Cannot get order for more then 1 customer.", ""), System.Net.HttpStatusCode.BadRequest);
                         }
                         else
                         {
+                            var parsedOrderId = 0;
+                            if (int.TryParse(arguments[Order_orderID], out parsedOrderId))
+                            {
+                                throw new WebFaultException<Error>(new Error("Order ID has to be an integer.", ""), System.Net.HttpStatusCode.BadRequest);
+                            }
+                            var parsedOrderDate = DateTime.MinValue;
+                            if (DateTime.TryParse(arguments[Order_orderDate], out parsedOrderDate))
+                            {
+                                throw new WebFaultException<Error>(new Error("Order DateTime has to be a valid date and time.", ""), System.Net.HttpStatusCode.BadRequest);
+                            }
+
                             var ordersMadeByCustomer = this.GetOrderBy(
-                            arguments.ContainsKey(Order_orderID) ? int.Parse(arguments[Order_orderID]) as int? : null,
+                            arguments.ContainsKey(Order_orderID) ? parsedOrderId as int? : null,
                             mathcingCustomers.First().custID,
                             arguments.ContainsKey(Order_poNumber) ? arguments[Order_poNumber] : null,
-                            arguments.ContainsKey(Order_orderDate) ? DateTime.Parse(arguments[Order_orderDate]) as DateTime? : null);
+                            arguments.ContainsKey(Order_orderDate) ? parsedOrderDate as DateTime? : null);
 
                             return new object[]
                             {
@@ -89,66 +92,89 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
                             };
                         }
                     }
+
+                    // Order
+
+                    if (arguments.ContainsKey(Order_orderID) ||
+                        arguments.ContainsKey(Order_custID) ||
+                        arguments.ContainsKey(Order_poNumber) ||
+                        arguments.ContainsKey(Order_orderDate))
+                    {
+                        var parsedOrderId = 0;
+                        if (int.TryParse(arguments[Order_orderID], out parsedOrderId))
+                        {
+                            throw new WebFaultException<Error>(new Error("Order ID has to be an integer.", ""), System.Net.HttpStatusCode.BadRequest);
+                        }
+                        var parsedOrderDate = DateTime.MinValue;
+                        if (DateTime.TryParse(arguments[Order_orderDate], out parsedOrderDate))
+                        {
+                            throw new WebFaultException<Error>(new Error("Order DateTime has to be a valid date and time.", ""), System.Net.HttpStatusCode.BadRequest);
+                        }
+
+                        return this.GetOrderBy(
+                            arguments.ContainsKey(Order_orderID) ? parsedOrderId as int? : null,
+                            arguments.ContainsKey(Order_custID) ? int.Parse(arguments[Order_custID]) as int? : null,
+                            arguments.ContainsKey(Order_poNumber) ? arguments[Order_poNumber] : null,
+                            arguments.ContainsKey(Order_orderDate) ? parsedOrderDate as DateTime? : null).ToArray();
+                    }
+
+                    // Cart
+
+                    if (arguments.ContainsKey(Cart_orderID) ||
+                        arguments.ContainsKey(Cart_prodID) ||
+                        arguments.ContainsKey(Cart_quantity))
+                    {
+                        return this.GetCartBy(
+                            arguments.ContainsKey(Cart_orderID) ? int.Parse(arguments[Cart_orderID]) as int? : null,
+                            arguments.ContainsKey(Cart_prodID) ? int.Parse(arguments[Cart_prodID]) as int? : null,
+                            arguments.ContainsKey(Cart_quantity) ? int.Parse(arguments[Cart_quantity]) as int? : null).ToArray();
+                    }
+
+                    // Customer
+
+                    if (arguments.ContainsKey(Customer_custID) ||
+                        arguments.ContainsKey(Customer_firstName) ||
+                        arguments.ContainsKey(Customer_lastName) ||
+                        arguments.ContainsKey(Customer_phoneNumber))
+                    {
+                        return this.GetCustomerBy(
+                            arguments.ContainsKey(Customer_custID) ? int.Parse(arguments[Customer_custID]) as int? : null,
+                        arguments.ContainsKey(Customer_firstName) ? arguments[Customer_firstName] : null,
+                        arguments.ContainsKey(Customer_lastName) ? arguments[Customer_lastName] : null,
+                        arguments.ContainsKey(Customer_phoneNumber) ? arguments[Customer_phoneNumber] : null).ToArray();
+                    }
+
+                    // Product
+
+                    if (arguments.ContainsKey(Product_prodID) ||
+                        arguments.ContainsKey(Product_prodName) ||
+                        arguments.ContainsKey(Product_price) ||
+                        arguments.ContainsKey(Product_prodWeight) ||
+                        arguments.ContainsKey(Product_inStock))
+                    {
+                        return this.GetProductsBy(
+                            (arguments.ContainsKey(Product_prodID) ? int.Parse(arguments[Product_prodID]) as int? : null),
+                            arguments.ContainsKey(Product_prodName) ? arguments[Product_prodName] : null,
+                            arguments.ContainsKey(Product_price) ? double.Parse(arguments[Product_price]) as double? : null,
+                            arguments.ContainsKey(Product_prodWeight) ? double.Parse(arguments[Product_prodWeight]) as double? : null,
+                            arguments.ContainsKey(Product_inStock) ? bool.Parse(arguments[Product_inStock]) as bool? : null).ToArray();
+                    }
                 }
-
-                // Order
-
-                if (arguments.ContainsKey(Order_orderID) ||
-                    arguments.ContainsKey(Order_custID) ||
-                    arguments.ContainsKey(Order_poNumber) ||
-                    arguments.ContainsKey(Order_orderDate))
+                else
                 {
-                    return this.GetOrderBy(
-                        arguments.ContainsKey(Order_orderID) ? int.Parse(arguments[Order_orderID]) as int? : null,
-                        arguments.ContainsKey(Order_custID) ? int.Parse(arguments[Order_custID]) as int? : null,
-                        arguments.ContainsKey(Order_poNumber) ? arguments[Order_poNumber] : null,
-                        arguments.ContainsKey(Order_orderDate) ? DateTime.Parse(arguments[Order_orderDate]) as DateTime? : null).ToArray();
-                }
-
-                // Cart
-
-                if (arguments.ContainsKey(Cart_orderID) ||
-                    arguments.ContainsKey(Cart_prodID) ||
-                    arguments.ContainsKey(Cart_quantity))
-                {
-                    return this.GetCartBy(
-                        arguments.ContainsKey(Cart_orderID) ? int.Parse(arguments[Cart_orderID]) as int? : null,
-                        arguments.ContainsKey(Cart_prodID) ? int.Parse(arguments[Cart_prodID]) as int? : null,
-                        arguments.ContainsKey(Cart_quantity) ? int.Parse(arguments[Cart_quantity]) as int? : null).ToArray();
-                }
-
-                // Customer
-
-                if (arguments.ContainsKey(Customer_custID) ||
-                    arguments.ContainsKey(Customer_firstName) ||
-                    arguments.ContainsKey(Customer_lastName) ||
-                    arguments.ContainsKey(Customer_phoneNumber))
-                {
-                    return this.GetCustomerBy(
-                        arguments.ContainsKey(Customer_custID) ? int.Parse(arguments[Customer_custID]) as int? : null,
-                    arguments.ContainsKey(Customer_firstName) ? arguments[Customer_firstName] : null,
-                    arguments.ContainsKey(Customer_lastName) ? arguments[Customer_lastName] : null,
-                    arguments.ContainsKey(Customer_phoneNumber) ? arguments[Customer_phoneNumber] : null).ToArray();
-                }
-
-                // Product
-
-                if (arguments.ContainsKey(Product_prodID) ||
-                    arguments.ContainsKey(Product_prodName) ||
-                    arguments.ContainsKey(Product_price) ||
-                    arguments.ContainsKey(Product_prodWeight) ||
-                    arguments.ContainsKey(Product_inStock))
-                {
-                    return this.GetProductsBy(
-                        (arguments.ContainsKey(Product_prodID) ? int.Parse(arguments[Product_prodID]) as int? : null),
-                        arguments.ContainsKey(Product_prodName) ? arguments[Product_prodName] : null,
-                        arguments.ContainsKey(Product_price) ? double.Parse(arguments[Product_price]) as double? : null,
-                        arguments.ContainsKey(Product_prodWeight) ? double.Parse(arguments[Product_prodWeight]) as double? : null,
-                        arguments.ContainsKey(Product_inStock) ? bool.Parse(arguments[Product_inStock]) as bool? : null).ToArray();
+                    throw new WebFaultException<Error>(new Error("Argument formatting invalid!", ""), System.Net.HttpStatusCode.BadRequest);
                 }
             }
+            catch (WebFaultException<Error> ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new WebFaultException<Error>(new Error("Unexpected exception!", ex.Message), System.Net.HttpStatusCode.InternalServerError);
+            }
 
-            return null;
+            throw new WebFaultException<Error>(new Error("No Brain. I cannot figure out what you want from me BRO!", "Service is stupid to interpret your request. Please contact you plumber for help. We hope this helps."), System.Net.HttpStatusCode.BadRequest);
         }
 
         public IList<Customer> GetCustomerBy(int? custID, string firstName, string lastName, string phoneNumber)
@@ -309,7 +335,120 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public PurchaseOrder GetPurchaseOrder(string parameters)
         {
-            return null;
+            var arguments = this.ParseArguments(parameters);
+            if (arguments != null)
+            {
+                // Check if we can find at least 1 customer and order argument and does not have any other arguments that are not properties of customer and order.
+
+                // arguments only contain customer and order arguments.
+                var argumentsThatAreForCustomerOrOrder = arguments.Keys.Where(
+                    key => key == Customer_custID ||
+                    key == Customer_firstName ||
+                    key == Customer_lastName ||
+                    key == Order_custID ||
+                    key == Order_orderDate ||
+                    key == Order_orderID ||
+                    key == Order_poNumber);
+                if (argumentsThatAreForCustomerOrOrder.Count() == arguments.Count)
+                {
+                    // Check if we have at least one of both
+                    if ((arguments.ContainsKey(Order_orderID) ||
+                        arguments.ContainsKey(Order_custID) ||
+                        arguments.ContainsKey(Order_poNumber) ||
+                        arguments.ContainsKey(Order_orderDate))
+                        &&
+                        (arguments.ContainsKey(Customer_custID) ||
+                        arguments.ContainsKey(Customer_firstName) ||
+                        arguments.ContainsKey(Customer_lastName)))
+                    {
+                        
+                        var matchingCustomers = this.GetCustomerBy(
+                            arguments.ContainsKey(Customer_custID) ? int.Parse(arguments[Customer_custID]) as int? : null,
+                            arguments.ContainsKey(Customer_firstName) ? arguments[Customer_firstName] : null,
+                            arguments.ContainsKey(Customer_lastName) ? arguments[Customer_lastName] : null,
+                            arguments.ContainsKey(Customer_phoneNumber) ? arguments[Customer_phoneNumber] : null);
+
+                        if (matchingCustomers.Count > 1)
+                        {
+                            throw new WebFaultException<Error>(new Error("Cannot get order for more then 1 customer.", ""), System.Net.HttpStatusCode.BadRequest);
+                        }
+                        else
+                        {
+                            var matchingCustomer = matchingCustomers.First();
+                            var ordersMadeByCustomer = this.GetOrderBy(
+                                arguments.ContainsKey(Order_orderID) ? int.Parse(arguments[Order_orderID]) as int? : null,
+                                matchingCustomer.custID,
+                                arguments.ContainsKey(Order_poNumber) ? arguments[Order_poNumber] : null,
+                                arguments.ContainsKey(Order_orderDate) ? DateTime.Parse(arguments[Order_orderDate]) as DateTime? : null);
+
+                            if (ordersMadeByCustomer == null && ordersMadeByCustomer.Count == 0)
+                            {
+                                throw new WebFaultException<Error>(new Error("No such order.", ""), System.Net.HttpStatusCode.BadRequest);
+                            }
+                            else
+                            {
+                                var po = new PurchaseOrder()
+                                {
+                                    Customer = matchingCustomer,
+                                    Order = ordersMadeByCustomer.First(),
+                                    OrderedProducts = new List<OrderedProduct>()
+                                };
+
+                                // We need to get EF Model again because above order was not tracked by EF.
+                                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                                {
+                                    var order = context.Orders.Where(o => o.orderID == po.Order.orderID).First();
+                                    foreach (var cart in order.Carts)
+                                    {
+                                        po.OrderedProducts.Add(new OrderedProduct()
+                                        {
+                                            Product = new Product(cart.Product),
+                                            quantity = cart.quantity
+                                        });
+                                    }
+                                }
+
+                                return po;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new WebFaultException<Error>(new Error("Minimum 1 customer and 1 order argument required!", "(custID OR lastName OR firstName) and (orderID OR poNumber OR orderDate)"), System.Net.HttpStatusCode.BadRequest);
+                    }
+                }
+                else
+                {
+                    throw new WebFaultException<Error>(new Error("Only customer and order arguments allowed.", "(custID OR lastName OR firstName) and (orderID OR poNumber OR orderDate)"), System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                throw new WebFaultException<Error>(new Error("Argument formatting invalid!", ""), System.Net.HttpStatusCode.BadRequest);
+            }
+        }
+
+        private Dictionary<string,string> ParseArguments(string arguments)
+        {
+            if (arguments != null && arguments.Length > 0 && arguments.Contains("="))
+            {
+                var parsedArguments = new Dictionary<string, string>(); // this is where we are going to store parsed arguments.
+                var searchBits = arguments.Split(new string[] { "|" }, StringSplitOptions.None);
+                foreach (var bit in searchBits)
+                {
+                    var argumentAndValue = bit.Split(new string[] { "=" }, StringSplitOptions.None);
+                    if (argumentAndValue.Count() == 2)
+                    {
+                        parsedArguments.Add(argumentAndValue[0], argumentAndValue[1]);
+                    }
+                }
+
+                return parsedArguments;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         #region | Customers |
@@ -362,50 +501,75 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public void AddCustomer(Customer customer)
         {
-            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            try
             {
-                context.Customers.Add(customer.GenerateDbModel());
-                context.SaveChanges();
+                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                {
+                    context.Customers.Add(customer.GenerateDbModel());
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new WebFaultException<Error>(new Error("Unexpected exception!", ex.Message), System.Net.HttpStatusCode.InternalServerError);
             }
         }
 
         public void UpdateCustomer(Customer customer)
         {
-            using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+            try
             {
-                var fetchedCustomerToUpdate = context.Customers.Where(o => o.custID == customer.custID).FirstOrDefault();
-                if (fetchedCustomerToUpdate != null)
+                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
                 {
-                    fetchedCustomerToUpdate.firstName = customer.firstName;
-                    fetchedCustomerToUpdate.lastName = customer.lastName;
-                    fetchedCustomerToUpdate.phoneNumber = customer.phoneNumber;
-                    context.SaveChanges(); 
+                    var fetchedCustomerToUpdate = context.Customers.Where(o => o.custID == customer.custID).FirstOrDefault();
+                    if (fetchedCustomerToUpdate != null)
+                    {
+                        fetchedCustomerToUpdate.firstName = customer.firstName;
+                        fetchedCustomerToUpdate.lastName = customer.lastName;
+                        fetchedCustomerToUpdate.phoneNumber = customer.phoneNumber;
+                        context.SaveChanges();
+                    }
+                    else
+                    {
+                        throw new WebFaultException<Error>(new Error("Customer with ID " + customer.custID + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                    }
                 }
-                else
-                {
-                    throw new WebFaultException<Error>(new Error("Customer with ID " + customer.custID + " not found.", ""), System.Net.HttpStatusCode.NotFound);
-                }
+            }
+            catch (Exception ex)
+            {
+                throw new WebFaultException<Error>(new Error("Unexpected exception!", ex.Message), System.Net.HttpStatusCode.InternalServerError);
             }
         }
 
         public void DeleteCustomer(string id)
         {
-            int customerWithIdToDelete = 0;
-            if (int.TryParse(id, out customerWithIdToDelete))
+            try
             {
-                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                int customerWithIdToDelete = 0;
+                if (int.TryParse(id, out customerWithIdToDelete))
                 {
-                    var fetchedCustomerToDelete = context.Customers.Where(o => o.custID == customerWithIdToDelete).FirstOrDefault();
-                    if (fetchedCustomerToDelete != null)
+                    using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
                     {
-                        context.Customers.Remove(fetchedCustomerToDelete);
-                        context.SaveChanges();
-                    }
-                    else
-                    {
-                        throw new WebFaultException<Error>(new Error("Customer with ID " + id + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                        var fetchedCustomerToDelete = context.Customers.Where(o => o.custID == customerWithIdToDelete).FirstOrDefault();
+                        if (fetchedCustomerToDelete != null)
+                        {
+                            context.Customers.Remove(fetchedCustomerToDelete);
+                            context.SaveChanges();
+                        }
+                        else
+                        {
+                            throw new WebFaultException<Error>(new Error("Customer with ID " + id + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                        }
                     }
                 }
+            }
+            catch(WebFaultException<Error> ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new WebFaultException<Error>(new Error("Unexpected exception!", ex.Message), System.Net.HttpStatusCode.InternalServerError);
             }
         }
 
@@ -486,22 +650,33 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public void DeleteProduct(string id)
         {
-            int productWithIdToDelete = 0;
-            if (int.TryParse(id, out productWithIdToDelete))
+            try
             {
-                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                int productWithIdToDelete = 0;
+                if (int.TryParse(id, out productWithIdToDelete))
                 {
-                    var fetchedProductToDelete = context.Products.Where(o => o.prodID == productWithIdToDelete).FirstOrDefault();
-                    if (fetchedProductToDelete != null)
+                    using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
                     {
-                        context.Products.Remove(fetchedProductToDelete);
-                        context.SaveChanges();
-                    }
-                    else
-                    {
-                        throw new WebFaultException<Error>(new Error("Product with ID " + id + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                        var fetchedProductToDelete = context.Products.Where(o => o.prodID == productWithIdToDelete).FirstOrDefault();
+                        if (fetchedProductToDelete != null)
+                        {
+                            context.Products.Remove(fetchedProductToDelete);
+                            context.SaveChanges();
+                        }
+                        else
+                        {
+                            throw new WebFaultException<Error>(new Error("Product with ID " + id + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                        }
                     }
                 }
+            }
+            catch (WebFaultException<Error> ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new WebFaultException<Error>(new Error("Unexpected exception!", ex.Message), System.Net.HttpStatusCode.InternalServerError);
             }
         } 
 
@@ -581,22 +756,33 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public void DeleteOrder(string id)
         {
-            int orderWithIdToDelete = 0;
-            if (int.TryParse(id, out orderWithIdToDelete))
+            try
             {
-                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                int orderWithIdToDelete = 0;
+                if (int.TryParse(id, out orderWithIdToDelete))
                 {
-                    var fetchedOrderToDelete = context.Orders.Where(o => o.orderID == orderWithIdToDelete).FirstOrDefault();
-                    if (fetchedOrderToDelete != null)
+                    using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
                     {
-                        context.Orders.Remove(fetchedOrderToDelete);
-                        context.SaveChanges();
-                    }
-                    else
-                    {
-                        throw new WebFaultException<Error>(new Error("Order with ID " + id + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                        var fetchedOrderToDelete = context.Orders.Where(o => o.orderID == orderWithIdToDelete).FirstOrDefault();
+                        if (fetchedOrderToDelete != null)
+                        {
+                            context.Orders.Remove(fetchedOrderToDelete);
+                            context.SaveChanges();
+                        }
+                        else
+                        {
+                            throw new WebFaultException<Error>(new Error("Order with ID " + id + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                        }
                     }
                 }
+            }
+            catch (WebFaultException<Error> ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new WebFaultException<Error>(new Error("Unexpected exception!", ex.Message), System.Net.HttpStatusCode.InternalServerError);
             }
         } 
 
@@ -627,8 +813,23 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
         {
             using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
             {
-                context.Carts.Add(cart.GenerateDbModel());
-                context.SaveChanges();
+                var product = context.Products.Where(o => o.prodID == cart.prodID).FirstOrDefault();
+                if (product == null)
+                {
+                    throw new WebFaultException<Error>(new Error("Product with ID " + cart.prodID + " does not exist.",""), System.Net.HttpStatusCode.BadRequest);
+                }
+                else if (product.inStock == false)
+                {
+                    throw new WebFaultException<Error>(new Error("Product with ID " + cart.prodID + " not in stock.", ""), System.Net.HttpStatusCode.BadRequest);
+                }
+                else
+                {
+
+                    context.Carts.Add(cart.GenerateDbModel());
+                    context.SaveChanges();
+                }
+
+                
             }
         }
 
@@ -651,23 +852,34 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
 
         public void DeleteCart(string orderId, string prodId)
         {
-            int orderIdToDelete = 0;
-            int prodIdToDelete = 0;
-            if (int.TryParse(orderId, out orderIdToDelete) && int.TryParse(prodId, out prodIdToDelete))
+            try
             {
-                using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
+                int orderIdToDelete = 0;
+                int prodIdToDelete = 0;
+                if (int.TryParse(orderId, out orderIdToDelete) && int.TryParse(prodId, out prodIdToDelete))
                 {
-                    var fetchedCartToDelete = context.Carts.Where(o => o.orderID == orderIdToDelete && o.prodID == prodIdToDelete).FirstOrDefault();
-                    if (fetchedCartToDelete != null)
+                    using (var context = new Models.CrazyMelvinsShoppingEmporiumDbEntities())
                     {
-                        context.Carts.Remove(fetchedCartToDelete);
-                        context.SaveChanges();
-                    }
-                    else
-                    {
-                        throw new WebFaultException<Error>(new Error("Cart with order ID " + orderId + " and product ID " + prodId + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                        var fetchedCartToDelete = context.Carts.Where(o => o.orderID == orderIdToDelete && o.prodID == prodIdToDelete).FirstOrDefault();
+                        if (fetchedCartToDelete != null)
+                        {
+                            context.Carts.Remove(fetchedCartToDelete);
+                            context.SaveChanges();
+                        }
+                        else
+                        {
+                            throw new WebFaultException<Error>(new Error("Cart with order ID " + orderId + " and product ID " + prodId + " not found.", ""), System.Net.HttpStatusCode.NotFound);
+                        }
                     }
                 }
+            }
+            catch (WebFaultException<Error> ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new WebFaultException<Error>(new Error("Unexpected exception!", ex.Message), System.Net.HttpStatusCode.InternalServerError);
             }
         } 
 
