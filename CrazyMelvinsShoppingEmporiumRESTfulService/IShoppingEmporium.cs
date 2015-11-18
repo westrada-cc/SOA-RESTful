@@ -122,6 +122,13 @@ namespace CrazyMelvinsShoppingEmporiumRESTfulService
         void DeleteCart(string orderId, string prodId);
 
         #endregion
+        #region | PO |
+
+        [WebGet(UriTemplate = "PO/{parameters}"), 
+        Description("Generates Purchase Order for customer and order. Arguments passed via parameters parameter have to contain at least 1 value of customer and order. (orderID, custID, lastName, firstName, poNumber and/or orderDate).")]
+        PurchaseOrder GetPurchaseOrder(string parameters);
+
+        #endregion 
 
     }
     

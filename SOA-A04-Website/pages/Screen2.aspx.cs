@@ -174,7 +174,28 @@ namespace SOA_A04_Website
                     break;
                 //Update
                 case 1:
-                    service.updateCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                    if (custID.Value != "")
+                    {
+                        result = service.updateCustomer(Convert.ToInt32(customerID), firstName, lastName, phoneNumber);
+                    }
+                    else if (prodID.Value != "")
+                    {
+                        float priceConvert;
+                        float weightConvert;
+
+                        float.TryParse(price, out priceConvert);
+                        float.TryParse(productWeight, out weightConvert);
+
+                        result = service.updateProduct(Convert.ToInt32(productID), productName, priceConvert, weightConvert, soldOut);
+                    }
+                    else if (orderID.Value != "")
+                    {
+                        result = service.updateOrder(Convert.ToInt32(_orderID), Convert.ToInt32(customerID), poNumber, orderDate);
+                    }
+                    else if (orderID2.Value != "")
+                    {
+                        result = service.updateCart(Convert.ToInt32(_orderID2), Convert.ToInt32(prodID2), Convert.ToInt32(quantity));
+                    }
                     break;
                 //Insert
                 case 2:
